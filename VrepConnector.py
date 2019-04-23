@@ -5,6 +5,7 @@ import vrep
 
 class VrepConnector:
     #host: string, port: int
+    scriptDescription='remoteApiCommandServer'
     def __init__(self, host = '127.0.0.1', port = 19999):
         print ('Program started')
         self.vrep=vrep
@@ -15,10 +16,19 @@ class VrepConnector:
         else:
             print ('Failed to connect to remote API server')
     
-    def callScript(self, functionName, scriptDescription, inInts=[], inFloats=[], inStrings=[], inBuffer=bytearray()):
-        res,retInts,retFloats,retStrings,retBuffer =vrep.simxCallScriptFunction(self.clientID, scriptDescription, vrep.sim_scripttype_childscript, functionName, inInts, inFloats, inStrings, inBuffer, vrep.simx_opmode_blocking)
+    def callScript(self, functionName, inInts=[], inFloats=[], inStrings=[], inBuffer=bytearray()):
+        res,retInts,retFloats, retStrings,retBuffer =vrep.simxCallScriptFunction(self.clientID, self.scriptDescription, vrep.sim_scripttype_childscript, functionName, inInts, inFloats, inStrings, inBuffer, vrep.simx_opmode_blocking)
         if res==vrep.simx_return_ok:
             print('Remote function call succeed')
         else:
             print ('Remote function call failed')
         return res,retInts,retFloats,retStrings,retBuffer
+
+    def start(self):
+        self.vrep.simxStartSimulation(self.clientID,vrep.simx_opmode_oneshot_wait)
+        
+    def stop(self):
+        self.vrep.simxStartSimulation(self.clientID,vrep.simx_opmode_oneshot_wait)
+
+    def finish(self):
+        vrep.simxFinish(self.clientID)

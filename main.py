@@ -1,17 +1,25 @@
 import sys
 import VrepMeshDrawer as vdrawer
+import VrepSceneManipulator as sceneMan
 
-elementsCount = 30
+elementsCount = 10
 
 def main():
     drawer = vdrawer.VrepMeshDrawer()
+    manipulator = sceneMan.VrepSceneManipulator()
+    drawer.vrepConn.start()
+    
     for i in range(elementsCount):
         drawer.DrawMesh()
-    success, objectIds = drawer.GetObjects('Shape', elementsCount)
+    success, objectIds = manipulator.GetObjects('Shape', elementsCount)
     if success is not -1:
-        drawer.GetObjectProperties('Shape', objectIds)
+        manipulator.SetObjectsToDynamic('Shape', objectIds)
     else:
         print('Error while get inserted object shapes from simulation.')
+    manipulator.RePaintElement('customizableTable_tableTop', True)
+    manipulator.GetImage('binCam')
+    
+    drawer.vrepConn.stop()
     return 0
 
 if __name__ == "__main__":
