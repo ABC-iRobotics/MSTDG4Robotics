@@ -17,7 +17,7 @@ def main():
     else:
         print('Error while get inserted object shapes from simulation.')
     manipulator.RePaintElement('customizableTable_tableTop', True)
-    manipulator.GetImage('binCam')
+    manipulator.GetImage('Vision_sensor')
     
     drawer.vrepConn.stop()
     return 0
