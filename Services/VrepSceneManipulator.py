@@ -60,14 +60,42 @@ class VrepSceneManipulator:
             #im.show() #just for testing
 
             currentDT = datetime.datetime.now()
-            im.save('image_set/'+str(currentDT)+'.jpg')
+            globalPath = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'image_set'))
+            path = os.path.join(globalPath, (str(currentDT)+'.jpg'))
+            im.save(path)
             
             if err == self.vrepConn.vrep.simx_return_ok:
-                imageAcquisitionTime=self.vrepConn.vrep.simxGetLastCmdTime(self.vrepConn.clientID)
+                #imageAcquisitionTime=self.vrepConn.vrep.simxGetLastCmdTime(self.vrepConn.clientID)
+                print('VrepSceneManipulator: GetImage: Image saved successfully: '+path)
+                return path
             else:
                 print('VrepSceneManipulator: GetImage: Error while get the image sensor image')
         else:
             print('VrepSceneManipulator: GetImage: Cannot get handler object')
         return 0
 
-    
+    def GetObjectPositionAndOrientation(self, name, referenceName):
+        position = []
+        orientation = []
+        handleErr, handle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, name, self.vrepConn.vrep.simx_opmode_blocking)
+        if handleErr == self.vrepConn.vrep.simx_return_ok:
+            if referenceName is None:
+                posReturnCode, position = self.vrepConn.vrep.simxGetObjectPosition(self.vrepConn.clientID, handle, -1, self.vrepConn.vrep.simx_opmode_blocking)
+                orReturnCode, orientation = self.vrepConn.vrep.simxGetObjectOrientation(self.vrepConn.clientID, handle, -1, self.vrepConn.vrep.simx_opmode_blocking)
+                if posReturnCode == self.vrepConn.vrep.simx_return_ok and orReturnCode == self.vrepConn.vrep.simx_return_ok:
+                    return position, orientation
+                else:
+                    return -1, "ERROR: Get position and orientation failed"
+            else:
+                refHandleErr, refHandle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, referenceName, self.vrepConn.vrep.simx_opmode_blocking)
+                if refHandleErr == self.vrepConn.vrep.simx_return_ok:
+                    posReturnCode, position = self.vrepConn.vrep.simxGetObjectPosition(self.vrepConn.clientID, handle, refHandle, self.vrepConn.vrep.simx_opmode_blocking)
+                    orReturnCode, orientation = self.vrepConn.vrep.simxGetObjectOrientation(self.vrepConn.clientID, handle, refHandle, self.vrepConn.vrep.simx_opmode_blocking)
+                    if posReturnCode == self.vrepConn.vrep.simx_return_ok and orReturnCode == self.vrepConn.vrep.simx_return_ok:
+                        return position, orientation
+                    else:
+                        return -1, "ERROR: Get position and orientation failed"
+                else:
+                    return -1, "ERROR: Get reference handler failed"
+        else:
+            return -1, "ERROR: Get target object handler failed"

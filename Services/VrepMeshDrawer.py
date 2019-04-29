@@ -14,7 +14,7 @@ class VrepMeshDrawer:
 
     def GetMeshList(self):
         globalPath = os.path.dirname(__file__)
-        fileNames = glob.glob( globalPath +'/' +self.folderName + "*.stl")
+        fileNames = glob.glob( globalPath +'/../' +self.folderName + "*.stl")
         return fileNames
 
     def GetColors(self, isRandom):

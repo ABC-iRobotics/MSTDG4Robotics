@@ -1,5 +1,5 @@
 import sys, os
-sys.path.insert(0, os.path.dirname(__file__) + '/libraries')
+sys.path.insert(0, os.path.dirname(__file__) + '/../libraries')
 import ctypes
 import vrep
 
