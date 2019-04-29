@@ -24,7 +24,7 @@ class MongoService:
 
     def insert(self, entity):
         element = self.mycol.insert_one(entity)
-        print('MongoService: Entity updated ' + str(element.inserted_id))
+        print('MongoService: Entity inserted ' + str(element.inserted_id))
         return element.inserted_id
     
     def find(self, query ={}, includeExclude ={}):

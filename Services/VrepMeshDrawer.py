@@ -1,14 +1,12 @@
-import sys
-import VrepConnector
-import glob
-import os
+import sys, os, glob
+import Services.VrepConnector as vconn
 import Helper as hp
 
 class VrepMeshDrawer:
     
     def __init__(self, functionName='insertMesh', folderName = 'meshes/'):
         self.functionName = functionName
-        self.vrepConn = VrepConnector.VrepConnector()
+        self.vrepConn = vconn.VrepConnector()
         self.folderName = folderName
         
 

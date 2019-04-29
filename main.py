@@ -1,20 +1,18 @@
 import sys, os
-sys.path.insert(0, os.path.dirname(__file__) + '/Services')
-sys.path.insert(0, os.path.dirname(__file__) + '/DataEntities')
 
-import VrepMeshDrawer as vdrawer
-import VrepSceneManipulator as sceneMan
+import Services.VrepMeshDrawer as vdrawer
+import Services.VrepSceneManipulator as sceneMan
 
-import TrainingImage as TI
-import Fixture as F
+import DataEntities.TrainingImage as TI
+import DataEntities.Fixture as F
 import MongoScv as MS 
 
-elementsCount = 2
+elementsCount = 5
 
 def main():
     drawer = vdrawer.VrepMeshDrawer()
     manipulator = sceneMan.VrepSceneManipulator()
-    drawer.vrepConn.start()
+    #drawer.vrepConn.start()
     
     for i in range(elementsCount):
         drawer.DrawMesh()
@@ -24,18 +22,18 @@ def main():
     else:
         print('Error while get inserted object shapes from simulation.')
     manipulator.RePaintElement('customizableTable_tableTop', True)
-    path = manipulator.GetImage('Vision_sensor')
+    path, deptBuffer, deptResolution = manipulator.GetImage('Vision_sensor')
     
     mongoDb = MS.MongoService()
 
-    GetPropertiesOfScreenObjects(manipulator, path, mongoDb)
+    GetPropertiesOfScreenObjects(path, deptBuffer, deptResolution, manipulator, mongoDb)
 
 
-    drawer.vrepConn.stop()
-    return 0
+    #drawer.vrepConn.stop()
+    #return
 
-def GetPropertiesOfScreenObjects(manipulator, path, mongoDb):
-    trainingImage = TI.TrainingImage(path)
+def GetPropertiesOfScreenObjects(path, deptBuffer, deptResolution, manipulator,  mongoDb):
+    trainingImage = TI.TrainingImage(path, deptBuffer, deptResolution)
     for i in range(elementsCount):
         shapeName = ''
         if i == 0:

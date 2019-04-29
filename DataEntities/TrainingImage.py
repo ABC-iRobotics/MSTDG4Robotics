@@ -1,10 +1,12 @@
-import Fixture as fx
+import DataEntities.Fixture as fx
 import datetime
 
 class TrainingImage:
 
-    def __init__(self, imageUrl):
+    def __init__(self, imageUrl, deptBuffer, deptResolution):
         self.imageUrl = imageUrl
+        self.deptBuffer = deptBuffer
+        self.deptResolution = deptResolution
         self.fixtures = []
         
     def addFixture(self, fixture):
@@ -15,8 +17,12 @@ class TrainingImage:
         self.addFixture(fixture)
 
     def dictMapper(self):
-        return {'imageUrl': self.imageUrl, 'fixtures': self.getFixturesDict()}
-        #return dict(self)
+        return  {
+                    'imageUrl': self.imageUrl, 
+                    'deptBuffer': self.deptBuffer, 
+                    'deptResolution': self.deptResolution, 
+                    'fixtures': self.getFixturesDict()
+                }
     
     def getFixturesDict(self):
         dictFixtures = []
@@ -24,5 +30,3 @@ class TrainingImage:
             for i in self.fixtures:
                 dictFixtures.append(i.dictMapper())
         return dictFixtures
-        
-        
