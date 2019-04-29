@@ -102,3 +102,13 @@ class VrepSceneManipulator:
                     return -1, "ERROR: Get reference handler failed"
         else:
             return -1, "ERROR: Get target object handler failed"
+
+    def RemoveObject(self, name):
+        handleErr, handle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, name, self.vrepConn.vrepConst.simx_opmode_blocking)
+        if handleErr == self.vrepConn.vrepConst.simx_return_ok:
+            self.vrepConn.vrep.simxRemoveObject(self.vrepConn.clientID, handle, self.vrepConn.vrepConst.simx_opmode_blocking)
+            print('VrepSceneManipulator: Object successfully deleted: ' + name)
+            return True
+        else:
+            print('VrepSceneManipulator: Object successfully deleted: ' + name)
+            return False

@@ -8,7 +8,7 @@ class VrepConnector:
     scriptDescription='remoteApiCommandServer'
     def __init__(self, host = '127.0.0.1', port = 19999):
         print ('Program started')
-        self.vrep=vrep
+        self.vrep = vrep
         self.vrepConst = vrepConst
         vrep.simxFinish(-1)
         self.clientID=vrep.simxStart(host, port, True, True, 5000, 5)
