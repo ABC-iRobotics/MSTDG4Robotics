@@ -8,14 +8,16 @@ import DataEntities.Fixture as F
 import MongoScv as MS 
 
 elementsCount = 5
-dbRowToAddCount = 20
+dbRowToAddCount = 10
 
 def main():
     drawer = vdrawer.VrepMeshDrawer()
     manipulator = sceneMan.VrepSceneManipulator()
     mongoDb = MS.MongoService()
-
+    
     drawer.vrepConn.start()
+    
+    manipulator.TurnOffDisplay()
     
     for i in range(dbRowToAddCount):
         DrawMeshes(drawer)
@@ -24,9 +26,9 @@ def main():
         
         manipulator.RePaintElement('customizableTable_tableTop', True)
 
-        path, deptBuffer, deptResolution = manipulator.GetImage('Vision_sensor')
+        imgPath, deptPath, resolution = manipulator.GetImage('Vision_sensor')
         
-        GetPropertiesOfScreenObjects(path, deptBuffer, deptResolution, 'Shape', manipulator, mongoDb)
+        GetPropertiesOfScreenObjects(imgPath, deptPath, resolution, 'Shape', manipulator, mongoDb)
 
         DeleteCreatedObjects('Shape', manipulator)
         

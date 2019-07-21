@@ -38,11 +38,11 @@ class VrepSceneManipulator:
         return 0
 
     def GetImage(self, visionSensorName):
-        time.sleep(2) #approx falling time in rt settings
+        time.sleep(.05) #approx falling time in rt settings
         handleErr, visionSensorHandle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, visionSensorName, self.vrepConn.vrepConst.simx_opmode_blocking)
         if handleErr == self.vrepConn.vrepConst.simx_return_ok:
             err, resolution, image = self.vrepConn.vrep.simxGetVisionSensorImage(self.vrepConn.clientID, visionSensorHandle, 0, self.vrepConn.vrepConst.simx_opmode_streaming)
-            time.sleep(.1)
+            time.sleep(.05)
 
             while (self.vrepConn.vrep.simxGetConnectionId(self.vrepConn.clientID) != -1):
                 err, resolution, image = self.vrepConn.vrep.simxGetVisionSensorImage(self.vrepConn.clientID, visionSensorHandle, 0, self.vrepConn.vrepConst.simx_opmode_buffer)       
@@ -55,7 +55,7 @@ class VrepSceneManipulator:
             #im.show() #just for testing
 
             depthReturnCode, depthResolution, depthBuffer = self.vrepConn.vrep.simxGetVisionSensorDepthBuffer(self.vrepConn.clientID, visionSensorHandle, self.vrepConn.vrepConst.simx_opmode_streaming)
-            time.sleep(.1)
+            time.sleep(.05)
             while (self.vrepConn.vrep.simxGetConnectionId(self.vrepConn.clientID) != -1):
                 depthReturnCode, depthResolution, depthBuffer = self.vrepConn.vrep.simxGetVisionSensorDepthBuffer(self.vrepConn.clientID, visionSensorHandle, self.vrepConn.vrepConst.simx_opmode_buffer)       
                 if depthReturnCode == self.vrepConn.vrepConst.simx_return_ok:
@@ -64,13 +64,19 @@ class VrepSceneManipulator:
 
             currentDT = datetime.datetime.now()
             globalPath = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'image_set'))
-            path = os.path.join(globalPath, (str(currentDT)+'.jpg'))
-            im.save(path)
+            imgPath = os.path.join(globalPath, (str(currentDT)+'.jpg'))
+            im.save(imgPath)
+
+            globalPath = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'depth_set'))
+            depthPath = os.path.join(globalPath, (str(currentDT)+'.dat'))
+            with open(depthPath, 'w') as f:
+                for item in depthBuffer:
+                    f.write("%f\n" % item)
             
             if err == self.vrepConn.vrepConst.simx_return_ok:
                 #imageAcquisitionTime=self.vrepConn.vrep.simxGetLastCmdTime(self.vrepConn.clientID)
                 print('VrepSceneManipulator: GetImage: Image saved successfully: '+path)
-                return path, depthBuffer, depthResolution
+                return imgPath, depthPath, resolution
             else:
                 print('VrepSceneManipulator: GetImage: Error while get the image sensor image')
         else:
@@ -112,3 +118,7 @@ class VrepSceneManipulator:
         else:
             print('VrepSceneManipulator: Object successfully deleted: ' + name)
             return False
+
+    def TurnOffDisplay(self):
+        self.vrepConn.vrep.simxSetBooleanParameter(self.vrepConn.clientID, self.vrepConn.vrepConst.sim_boolparam_display_enabled, False, self.vrepConn.vrepConst.simx_opmode_blocking)
+        

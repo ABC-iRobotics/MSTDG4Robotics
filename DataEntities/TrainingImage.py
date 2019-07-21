@@ -3,10 +3,10 @@ import datetime
 
 class TrainingImage:
 
-    def __init__(self, imageUrl, deptBuffer, deptResolution):
+    def __init__(self, imageUrl, deptUrl, resolution):
         self.imageUrl = imageUrl
-        self.deptBuffer = deptBuffer
-        self.deptResolution = deptResolution
+        self.deptUrl = deptUrl
+        self.resolution = resolution
         self.fixtures = []
         
     def addFixture(self, fixture):
@@ -19,8 +19,8 @@ class TrainingImage:
     def dictMapper(self):
         return  {
                     'imageUrl': self.imageUrl, 
-                    'deptBuffer': self.deptBuffer, 
-                    'deptResolution': self.deptResolution, 
+                    'deptUrl': self.deptUrl, 
+                    'resolution': self.resolution, 
                     'fixtures': self.getFixturesDict()
                 }
     
