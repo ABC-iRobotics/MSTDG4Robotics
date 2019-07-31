@@ -8,7 +8,7 @@ import DataEntities.Fixture as F
 import MongoScv as MS 
 
 elementsCount = 5
-dbRowToAddCount = 10
+dbRowToAddCount = 1
 
 def main():
     drawer = vdrawer.VrepMeshDrawer()
@@ -16,9 +16,8 @@ def main():
     mongoDb = MS.MongoService()
     
     drawer.vrepConn.start()
-    
-    manipulator.TurnOffDisplay()
-    
+    manipulator.SetSimulationSpeed(6) #value can set from -3 (0.1x speed) to +6 (64x speed)
+    simSpeed = manipulator.GetSimulationSpeed()
     for i in range(dbRowToAddCount):
         DrawMeshes(drawer)
 

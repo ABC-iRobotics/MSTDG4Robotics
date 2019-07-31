@@ -75,7 +75,7 @@ class VrepSceneManipulator:
             
             if err == self.vrepConn.vrepConst.simx_return_ok:
                 #imageAcquisitionTime=self.vrepConn.vrep.simxGetLastCmdTime(self.vrepConn.clientID)
-                print('VrepSceneManipulator: GetImage: Image saved successfully: '+path)
+                print('VrepSceneManipulator: GetImage: Image saved successfully: ' + imgPath)
                 return imgPath, depthPath, resolution
             else:
                 print('VrepSceneManipulator: GetImage: Error while get the image sensor image')
@@ -121,4 +121,8 @@ class VrepSceneManipulator:
 
     def TurnOffDisplay(self):
         self.vrepConn.vrep.simxSetBooleanParameter(self.vrepConn.clientID, self.vrepConn.vrepConst.sim_boolparam_display_enabled, False, self.vrepConn.vrepConst.simx_opmode_blocking)
-        
+    def GetSimulationSpeed(self):
+        return self.vrepConn.vrep.simxGetIntegerParameter(self.vrepConn.clientID, self.vrepConn.vrepConst.sim_intparam_speedmodifier, self.vrepConn.vrepConst.simx_opmode_blocking)
+
+    def SetSimulationSpeed(self, newValue):
+        return self.vrepConn.vrep.simxSetIntegerParameter(self.vrepConn.clientID, self.vrepConn.vrepConst.sim_intparam_speedmodifier, newValue, self.vrepConn.vrepConst.simx_opmode_blocking)
