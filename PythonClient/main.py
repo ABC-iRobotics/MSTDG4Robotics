@@ -5,10 +5,10 @@ import Services.VrepSceneManipulator as sceneMan
 
 import DataEntities.TrainingImage as TI
 import DataEntities.Fixture as F
-import MongoScv as MS 
+import Services.MongoScv as MS 
 
-elementsCount = 5
-dbRowToAddCount = 1
+elementsCount = 10
+dbRowToAddCount = 10
 
 def main():
     drawer = vdrawer.VrepMeshDrawer()
