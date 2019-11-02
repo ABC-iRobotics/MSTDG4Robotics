@@ -2,7 +2,6 @@ import pymongo as dbconn
 
 class MongoService:
     def __init__(self, serverUri = 'localhost:27017/', databaseName = 'binPicking', collectionName='TrainingImage'):
-      
         self.myclient = dbconn.MongoClient('mongodb://'+serverUri)
         dblist = self.myclient.list_database_names()
         if databaseName in dblist:

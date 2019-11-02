@@ -14,8 +14,10 @@ class VrepConnector:
         self.clientID=vrep.simxStart(host, port, True, True, 5000, 5)
         if self.clientID!=-1:
             print ('Connected to remote API server')
+            self.connectionWasSuccesfull = True
         else:
             print ('Failed to connect to remote API server')
+            self.connectionWasSuccesfull = False
     
     def callScript(self, functionName, inInts=[], inFloats=[], inStrings=[], inBuffer=bytearray()):
         res,retInts,retFloats, retStrings,retBuffer =self.vrep.simxCallScriptFunction(self.clientID, self.scriptDescription, vrepConst.sim_scripttype_childscript, functionName, inInts, inFloats, inStrings, inBuffer, vrepConst.simx_opmode_blocking)
@@ -33,3 +35,12 @@ class VrepConnector:
 
     def finish(self):
         vrep.simxFinish(self.clientID)
+
+    def TurnOffDisplay(self):
+        self.vrep.simxSetBooleanParameter(self.clientID, self.vrepConst.sim_boolparam_display_enabled, False, self.vrepConst.simx_opmode_blocking)
+
+    def GetSimulationSpeed(self):
+        return self.vrep.simxGetIntegerParameter(self.clientID, self.vrepConst.sim_intparam_speedmodifier, self.vrepConst.simx_opmode_blocking)
+
+    def SetSimulationSpeed(self, newValue):
+        return self.vrep.simxSetIntegerParameter(self.clientID, self.vrepConst.sim_intparam_speedmodifier, newValue, self.vrepConst.simx_opmode_blocking)

@@ -1,12 +1,12 @@
 import sys, os, glob, array, datetime, time
-import Services.VrepConnector as vcon
 import Helper as hp
 from PIL import Image
 
 class VrepSceneManipulator:
 
-    def __init__(self):
-        self.vrepConn = vcon.VrepConnector()
+    def __init__(self, vrepConn, binPickingScene):
+        self.vrepConn = vrepConn
+        self.binPickingScene = binPickingScene
 
     def SetObjectsToDynamic(self, name, objectHandleList):
         for i in objectHandleList:
@@ -29,12 +29,13 @@ class VrepSceneManipulator:
                     i+=1
         return 0, objectHandleList
 
-    def RePaintElement(self, elementName,isRandom):
+    def RePaintElement(self, element, isRandom):
+        #element is a VrepObject
         floats = [0.5, 0.5, 0.5]
         if isRandom:
             floats = [hp.Helper.GetRandom(0, 101, True), hp.Helper.GetRandom(0, 101, True), hp.Helper.GetRandom(0, 101, True)]
-        strings = [elementName]
-        self.vrepConn.callScript('setColor', inStrings=strings, inFloats=floats)
+        
+        element.Repaint(floats)
         return 0
 
     def GetImage(self, visionSensorName):
@@ -64,11 +65,11 @@ class VrepSceneManipulator:
 
             currentDT = datetime.datetime.now()
             globalPath = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'image_set'))
-            imgPath = os.path.join(globalPath, (str(currentDT)+'.jpg'))
+            imgPath = os.path.join(globalPath, (currentDT.strftime("%Y_%m_%d_%H_%M_%S")+'.jpg'))
             im.save(imgPath)
 
             globalPath = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'depth_set'))
-            depthPath = os.path.join(globalPath, (str(currentDT)+'.dat'))
+            depthPath = os.path.join(globalPath, (currentDT.strftime("%Y_%m_%d_%H_%M_%S")+'.dat'))
             with open(depthPath, 'w') as f:
                 for item in depthBuffer:
                     f.write("%f\n" % item)
@@ -83,46 +84,6 @@ class VrepSceneManipulator:
             print('VrepSceneManipulator: GetImage: Cannot get handler object')
         return 0
 
-    def GetObjectPositionAndOrientation(self, name, referenceName):
-        position = []
-        orientation = []
-        handleErr, handle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, name, self.vrepConn.vrepConst.simx_opmode_blocking)
-        if handleErr == self.vrepConn.vrepConst.simx_return_ok:
-            if referenceName is None:
-                posReturnCode, position = self.vrepConn.vrep.simxGetObjectPosition(self.vrepConn.clientID, handle, -1, self.vrepConn.vrepConst.simx_opmode_blocking)
-                orReturnCode, orientation = self.vrepConn.vrep.simxGetObjectOrientation(self.vrepConn.clientID, handle, -1, self.vrepConn.vrepConst.simx_opmode_blocking)
-                if posReturnCode == self.vrepConn.vrepConst.simx_return_ok and orReturnCode == self.vrepConn.vrepConst.simx_return_ok:
-                    return position, orientation
-                else:
-                    return -1, "ERROR: Get position and orientation failed"
-            else:
-                refHandleErr, refHandle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, referenceName, self.vrepConn.vrepConst.simx_opmode_blocking)
-                if refHandleErr == self.vrepConn.vrepConst.simx_return_ok:
-                    posReturnCode, position = self.vrepConn.vrep.simxGetObjectPosition(self.vrepConn.clientID, handle, refHandle, self.vrepConn.vrepConst.simx_opmode_blocking)
-                    orReturnCode, orientation = self.vrepConn.vrep.simxGetObjectOrientation(self.vrepConn.clientID, handle, refHandle, self.vrepConn.vrepConst.simx_opmode_blocking)
-                    if posReturnCode == self.vrepConn.vrepConst.simx_return_ok and orReturnCode == self.vrepConn.vrepConst.simx_return_ok:
-                        return position, orientation
-                    else:
-                        return -1, "ERROR: Get position and orientation failed"
-                else:
-                    return -1, "ERROR: Get reference handler failed"
-        else:
-            return -1, "ERROR: Get target object handler failed"
-
-    def RemoveObject(self, name):
-        handleErr, handle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, name, self.vrepConn.vrepConst.simx_opmode_blocking)
-        if handleErr == self.vrepConn.vrepConst.simx_return_ok:
-            self.vrepConn.vrep.simxRemoveObject(self.vrepConn.clientID, handle, self.vrepConn.vrepConst.simx_opmode_blocking)
-            print('VrepSceneManipulator: Object successfully deleted: ' + name)
-            return True
-        else:
-            print('VrepSceneManipulator: Object successfully deleted: ' + name)
-            return False
-
-    def TurnOffDisplay(self):
-        self.vrepConn.vrep.simxSetBooleanParameter(self.vrepConn.clientID, self.vrepConn.vrepConst.sim_boolparam_display_enabled, False, self.vrepConn.vrepConst.simx_opmode_blocking)
-    def GetSimulationSpeed(self):
-        return self.vrepConn.vrep.simxGetIntegerParameter(self.vrepConn.clientID, self.vrepConn.vrepConst.sim_intparam_speedmodifier, self.vrepConn.vrepConst.simx_opmode_blocking)
-
-    def SetSimulationSpeed(self, newValue):
-        return self.vrepConn.vrep.simxSetIntegerParameter(self.vrepConn.clientID, self.vrepConn.vrepConst.sim_intparam_speedmodifier, newValue, self.vrepConn.vrepConst.simx_opmode_blocking)
+    def RemoveObject(self, element):
+        element.Remove()
+        self.binPickingScene.RemoveShape()

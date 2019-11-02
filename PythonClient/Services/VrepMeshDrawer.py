@@ -1,14 +1,13 @@
 import sys, os, glob
-import Services.VrepConnector as vconn
 import Helper as hp
 
 class VrepMeshDrawer:
     
-    def __init__(self, functionName='insertMesh', folderName = 'meshes/'):
+    def __init__(self, vrepConn,binPickingScene, functionName='insertMesh', folderName = 'meshes/' ):
         self.functionName = functionName
-        self.vrepConn = vconn.VrepConnector()
-        self.folderName = folderName
-        
+        self.vrepConn = vrepConn
+        self.folderName = folderName    
+        self.binPickingScene = binPickingScene
 
     def GetMeshList(self):
         globalPath = os.path.dirname(__file__)
@@ -30,7 +29,7 @@ class VrepMeshDrawer:
     def GetAbsolutePosition(self, isRandom):
         position = [0, 0, 0.9]
         if isRandom:
-            position = [hp.Helper.GetRandom(0,20,True), hp.Helper.GetRandom(0,20,True), hp.Helper.GetRandom(95,115,True)]
+            position = [hp.Helper.GetRandom(0,20,True), hp.Helper.GetRandom(-45,60,True), hp.Helper.GetRandom(50,80,True)]
         return position
 
     def GetAbsoluteOrientation(self, isRandom):
