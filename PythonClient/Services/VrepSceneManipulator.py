@@ -2,6 +2,8 @@ import sys, os, glob, array, datetime, time
 import Helper as hp
 from PIL import Image
 
+import Services.VrepObject as vo
+
 class VrepSceneManipulator:
 
     def __init__(self, vrepConn, binPickingScene):
@@ -14,20 +16,41 @@ class VrepSceneManipulator:
             self.vrepConn.vrep.simxSetObjectIntParameter(self.vrepConn.clientID, i, self.vrepConn.vrepConst.sim_shapeintparam_static, 0, self.vrepConn.vrepConst.simx_opmode_blocking)
             self.vrepConn.vrep.simxSetObjectIntParameter(self.vrepConn.clientID, i, self.vrepConn.vrepConst.sim_shapeintparam_respondable, 1, self.vrepConn.vrepConst.simx_opmode_blocking)
     
-    def GetObjects(self, name, count):
+    def GetObjectHandleList(self, name, count, startIndex = None):
         objectHandleList = []
         if count < 1: 
             return -1
-        objectHandle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, name, self.vrepConn.vrepConst.simx_opmode_blocking)[1]
-        objectHandleList.append(objectHandle)
-        if count > 1:
+        i = startIndex
+        if startIndex is None:
+            objectHandle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, name, self.vrepConn.vrepConst.simx_opmode_blocking)[1]
+            objectHandleList.append(objectHandle)
             i = 0
+        if count > 1:
             while objectHandle != 0:
                 objectHandle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, (name+str(i)), self.vrepConn.vrepConst.simx_opmode_blocking)[1]
                 if(objectHandle != 0):
                     objectHandleList.append(objectHandle)
                     i+=1
         return 0, objectHandleList
+
+    def GetObjectList(self, name, startIndex = None):
+        objectList = []
+        i = startIndex
+        
+        if startIndex is None:
+            elem = vo.VrepObject(self.vrepConn, name) 
+            objectList.append(elem)
+            i = 0
+        else:
+            elem = vo.VrepObject(self.vrepConn, (name+str(i))) 
+            objectList.append(elem)
+            i += 1
+        while elem.handler > 0:
+            elem = vo.VrepObject(self.vrepConn, (name+str(i))) 
+            if(elem.handler > 0):
+                objectList.append(elem)
+                i+=1
+        return objectList
 
     def RePaintElement(self, element, isRandom):
         #element is a VrepObject

@@ -3,29 +3,42 @@ import Helper as hp
 
 class VrepSceneDrawer:
     
-    def __init__(self, vrepConn, binPickingScene, functionName='insertMesh', folderName = 'meshes/' ):
+    def __init__(self, vrepConn, taskName='BinPicking', functionName='insertMesh', folderName = 'meshes/'):
         self.functionName = functionName
         self.vrepConn = vrepConn
         self.folderName = folderName    
-        self.binPickingScene = binPickingScene
         self.helper = hp.Helper()
+        self.taskName = taskName
 
     def GetMeshList(self):
         globalPath = os.path.dirname(__file__)
         if self.meshName is not None:
-            fileNames = glob.glob( globalPath +'/../' +self.folderName + self.meshName)
+            fileName = glob.glob( globalPath +'/../' +self.folderName+'/'+self.taskName+'/'+ self.meshName)
         else:    
-            fileNames = glob.glob( globalPath +'/../' +self.folderName + "*.stl")
-        return fileNames
+            fileName = glob.glob( globalPath +'/../' +self.folderName + "*.stl")
+        return fileName
 
-    def DrawMesh(self, meshName, scaling):
+    def DrawMesh(self, meshName, scaling = 1, colors = None, position = None, orientation = None):
         self.meshName = meshName
         meshList = self.GetMeshList()
-        floatParamList = self.helper.GetColors(True)
+        floatParamList = []
+        if colors is None:
+            floatParamList = self.helper.GetColors(True)
+        else:
+            floatParamList = colors
+        
         scale = scaling
+        
         floatParamList.append(scale)
-        floatParamList.extend(self.helper.GetAbsolutePosition(True))
-        floatParamList.extend(self.helper.GetAbsoluteOrientation(True))
+        
+        if position is None:
+            floatParamList.extend(self.helper.GetRandomAbsolutePosition(True))
+        else: 
+            floatParamList.extend(position)
+        if orientation is None:
+            floatParamList.extend(self.helper.GetRandomAbsoluteOrientation(True))
+        else:
+            floatParamList.extend(orientation)
 
         separator = ',\n'
         print('Call '+self.functionName+ ' with '+ separator.join(meshList)+' parameter.')

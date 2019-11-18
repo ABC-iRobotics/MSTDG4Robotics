@@ -12,15 +12,19 @@ class VrepObject:
         self.returnOK = vrepConnector.vrepConst.simx_return_ok
         self.name = name
         self.handler = self.GetObject(name)
+        self.position = None
+        self.orientation = None
 
     def GetObject(self, name):
         handleErr, handle = self.vrepConn.vrep.simxGetObjectHandle(self.clientID, name, self.opMode)
         if handleErr != self.returnOK:
-            print("ERROR: Get position and orientation failed")
+            print("ERROR: VrepObject: GetObject")
         return handle
     
-    def GetObjectPositionAndOrientation(self, referenceName):
-        if self.handler > -1:
+    def GetObjectPositionAndOrientation(self, referenceName = None):
+        if self.position is not None and self.orientation is not None:
+            return self.position, self.orientation
+        elif self.handler > -1:
             position = []
             orientation = []
             handle = self.handler
@@ -28,6 +32,8 @@ class VrepObject:
                 posReturnCode, position = self.vrepConn.vrep.simxGetObjectPosition(self.clientID, handle, -1, self.opMode)
                 orReturnCode, orientation = self.vrepConn.vrep.simxGetObjectOrientation(self.clientID, handle, -1, self.opMode)
                 if posReturnCode == self.returnOK and orReturnCode == self.returnOK:
+                    self.position = position
+                    self.orientation = orientation
                     return position, orientation
                 else:
                     return -1, "ERROR: Get position and orientation failed"
@@ -37,6 +43,8 @@ class VrepObject:
                     posReturnCode, position = self.vrepConn.vrep.simxGetObjectPosition(self.clientID, handle, refHandle, self.opMode)
                     orReturnCode, orientation = self.vrepConn.vrep.simxGetObjectOrientation(self.clientID, handle, refHandle, self.opMode)
                     if posReturnCode == self.returnOK and orReturnCode == self.returnOK:
+                        self.position = position
+                        self.orientation = orientation
                         return position, orientation
                     else:
                         return -1, "ERROR: Get position and orientation failed"
