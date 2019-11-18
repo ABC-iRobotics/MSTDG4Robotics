@@ -1,0 +1,35 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+}
+.App-header {
+  background-color: #282c34;
+  height: 20vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.ui.card, .ui.cards>.card {
+  min-width: 400px;
+  max-width: 1000px;
+  padding: 20px 20px 20px 20px;
+  margin-top: 50px;
+}
+
+.App-link {
+  color: #09d3ac;
+}
+
+.logo-container img{
+  width: 10%;
+  margin-top: 20px;
+}
+
+.hidden { display:none; }
