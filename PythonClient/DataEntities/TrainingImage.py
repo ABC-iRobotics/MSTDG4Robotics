@@ -3,11 +3,12 @@ import datetime
 
 class TrainingImage:
 
-    def __init__(self, imageUrl, deptUrl, resolution):
+    def __init__(self, imageUrl, deptUrl, resolution, trainingId):
         self.imageUrl = imageUrl
         self.deptUrl = deptUrl
         self.resolution = resolution
         self.fixtures = []
+        self.trainingId = trainingId
         
     def addFixture(self, fixture):
         self.fixtures.append(fixture)

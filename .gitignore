@@ -122,5 +122,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-image_set/*.jpg
-depth_set/*.dat
+PythonClient/image_set/*.jpg
+PythonClient/depth_set/*.dat
+
+.vscode/*
+ClientApp/*

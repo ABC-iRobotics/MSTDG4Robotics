@@ -19,7 +19,10 @@ try:
         file_extension = '.so'
     libfullpath = os.path.join(os.path.dirname(__file__), 'remoteApi' + file_extension)
     print(libfullpath)
-    libsimx = ct.WinDLL(libfullpath)
+    if platform.system() == 'Darwin':
+        libsimx = ct.CDLL(libfullpath)
+    else:
+        libsimx = ct.WinDLL(libfullpath)
     print(libsimx)
 except:
     print ('----------------------------------------------------')

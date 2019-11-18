@@ -1,5 +1,5 @@
 import Services.VrepObject as vo
-import Services.VrepMeshDrawer as vdrawer
+import Services.VrepSceneDrawer as vdrawer
 import Services.VrepSceneManipulator as sceneMan
 
 import DataEntities.TrainingImage as TI
@@ -7,15 +7,24 @@ import DataEntities.Fixture as F
 import Services.MongoScv as MS 
 
 class BinPickingScene:
-    def __init__(self, vrepConnector, tableName, binName, visionSensorName, elementsCount = 10, dbRowToAddCount = 10):
+
+        #Parameters: 
+        #   VrepConnector, 
+        #   table name, 
+        #   bin name, 
+        #   vision sensor name, 
+        #   how many part will be appeared, 
+        #   how many data should be generated
+
+    def __init__(self, vrepConnector, tableName, binName, visionSensorName, meshPath, elementsCount = 10):
         self.elementsCount = elementsCount
-        self.dbRowToAddCount = dbRowToAddCount
 
         self.vrepConn = vrepConnector
 
-        self.drawer = vdrawer.VrepMeshDrawer(vrepConnector, self)
+        self.drawer = vdrawer.VrepSceneDrawer(vrepConnector, self)
+        self.meshPath = meshPath
         self.manipulator = sceneMan.VrepSceneManipulator(vrepConnector, self)
-        self.mongoDb = MS.MongoService()
+        self.mongoDb = MS.MongoService('BinPicking')
 
         self.bin = vo.VrepObject(vrepConnector, binName)
         self.bin.SetToDynamic()
@@ -24,21 +33,17 @@ class BinPickingScene:
         self.visionSencor = vo.VrepObject(vrepConnector, visionSensorName)
         self.shapeList = []
 
-    def StartLoop(self):
-        for i in range(self.dbRowToAddCount):
-            self.DrawMeshes()
+    def Step(self):
+        self.DrawMeshes()
 
-            #self.SetObjectsToDynamic('Shape', self.manipulator)
+        self.manipulator.RePaintElement(self.table, True)
+        self.manipulator.RePaintElement(self.bin, True)
+
+        imgPath, deptPath, resolution = self.manipulator.GetImage('Vision_sensor')
             
+        self.GetPropertiesOfScreenObjects(imgPath, deptPath, resolution)
 
-            self.manipulator.RePaintElement(self.table, True)
-            self.manipulator.RePaintElement(self.bin, True)
-
-            imgPath, deptPath, resolution = self.manipulator.GetImage('Vision_sensor')
-            
-            self.GetPropertiesOfScreenObjects(imgPath, deptPath, resolution)
-
-            self.DeleteCreatedObjects()
+        self.DeleteCreatedObjects()
 
     def GetPropertiesOfScreenObjects(self, path, deptBuffer, deptResolution):
         trainingImage = TI.TrainingImage(path, deptBuffer, deptResolution)
@@ -52,7 +57,7 @@ class BinPickingScene:
 
     def DrawMeshes(self):
         for i in range(self.elementsCount):
-            self.drawer.DrawMesh()
+            self.drawer.DrawMesh(self.meshPath, 0.004)
             if i == 0:
                 self.AddShape("Shape")
             else: 
