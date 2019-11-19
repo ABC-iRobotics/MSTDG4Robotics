@@ -51,9 +51,13 @@ class VrepObject:
                 else:
                     return -1, "ERROR: Get reference handler failed"
     
-    def Repaint(self, colorFloats):
+    def SetColor(self, colorFloats):
         if self.handler > -1:
             self.vrepConn.callScript('setColor', inStrings=[self.name], inFloats=colorFloats)
+    
+    def SetTransparency(self, opacity):
+        if self.handler > -1:
+            self.vrepConn.callScript('setTransparency', inStrings=[self.name], inFloats=[opacity])
 
     def Remove(self):
         if self.handler > -1:

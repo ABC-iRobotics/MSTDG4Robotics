@@ -58,7 +58,7 @@ class VrepSceneManipulator:
         if isRandom:
             floats = [hp.Helper.GetRandom(0, 101, True), hp.Helper.GetRandom(0, 101, True), hp.Helper.GetRandom(0, 101, True)]
         
-        element.Repaint(floats)
+        element.SetColor(floats)
         return 0
 
     def GetImage(self, visionSensorName):

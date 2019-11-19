@@ -5,7 +5,7 @@ import Tasks.BinPickingScene as bps
 import Tasks.PegTransferScene as pts
 
 def main():
-    datasetCount = 1
+    datasetCount = 10
     meshCount = 20
     meshName = 'tube.obj'
     if len(sys.argv) > 1:
@@ -30,13 +30,14 @@ def main():
             binPickingScene = bps.BinPickingScene(vrepConn, 'Table', 'Bin', 'Vision_sensor', meshName, meshCount, datasetCount)
             for dbCount in range(datasetCount):
                 binPickingScene.Step()
-                
+
         elif selectedProgram is 'PegTransfer':
             pegTransferScene = pts.PegTransferScene(vrepConn, meshName)
-            pegTransferScene.Init('Surface', 'PEG', 'Vision_sensor', 'Spotlight', 'Cylinder')
+            pegTransferScene.Init('Surface', 'Vision_sensor', 'Spotlight', 'Cylinder')
             for dbCount in range(datasetCount):
                 pegTransferScene.Step()
-            
+        
+
         #-----------------
         #Logic ends here
 

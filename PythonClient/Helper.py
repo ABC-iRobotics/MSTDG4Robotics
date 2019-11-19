@@ -9,9 +9,9 @@ class Helper:
         return value
     
     def GetColors(self, isRandom):
-        colorArr = [0.5, 0.5, 0.5, 1]
+        colorArr = [0.5, 0.5, 0.5]
         if isRandom:
-            colorArr = [self.GetRandom(0,101, True), self.GetRandom(0,101, True), self.GetRandom(0,101, True), 1]
+            colorArr = [self.GetRandom(0,101, True), self.GetRandom(0,101, True), self.GetRandom(0,101, True)]
         return colorArr
 
     def GetRandomAbsolutePosition(self, isRandom):
