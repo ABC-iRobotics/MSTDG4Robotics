@@ -1,0 +1,119 @@
+{
+    "title": "Deep learning framework",
+    "vrepPath": "/Applications/V-REP_V3_6_1_rev3/vrep.app/Contents/MacOS/vrep",
+    "inputs":[
+        { 
+            "label": "Dataset count",
+            "fieldName": "datasetCount",
+            "iconClass": "sort numeric up",
+            "fieldType": "number",
+            "fieldValue": 10,
+            "fieldPlaceholder": "Dataset count"
+        },
+        { 
+            "label": "Simulation speed",
+            "fieldName": "simSpeed",
+            "iconClass": "sort numeric up",
+            "fieldType": "number",
+            "fieldValue": 1,
+            "fieldPlaceholder": "Simulation speed"
+        }
+    ],
+    "tasks": [
+        {
+            "task":{
+                "label": "Bin Picking",
+                "taskName":"BinPicking",
+                "inputs":[
+                    {
+                        "label": "Mesh path",
+                        "fieldName": "meshPath",
+                        "iconClass": "file",
+                        "fieldType": "file",
+                        "fieldPlaceholder": "Mesh path"
+                    },
+                    {
+                        "label": "Mesh count",
+                        "fieldName": "meshCount",
+                        "iconClass": "sort numeric up",
+                        "fieldType": "number",
+                        "fieldValue": "20",
+                        "fieldPlaceholder": "Mesh count"
+                    },
+                    {
+                        "label": "Table name",
+                        "fieldName": "tableName",
+                        "iconClass": "file",
+                        "fieldType": "text",
+                        "fieldValue": "Table",
+                        "fieldPlaceholder": "Table name"
+                    },
+                    {
+                        "label": "Vision sensor name",
+                        "fieldName": "visionSensorName",
+                        "iconClass": "file",
+                        "fieldType": "text",
+                        "fieldValue": "Vision_sensor",
+                        "fieldPlaceholder": "Vision sensor name"
+                    },
+                    {
+                        "label": "Bin name",
+                        "fieldName": "binName",
+                        "iconClass": "file",
+                        "fieldType": "text",
+                        "fieldValue": "Bin",
+                        "fieldPlaceholder": "Bin name"
+                    }
+
+                ]
+            }
+        },
+        {
+            "task":{
+                "label": "Peg Transfer",
+                "taskName":"PegTransfer",
+                "inputs":[
+                    {
+                        "label": "Mesh path",
+                        "fieldName": "meshPath",
+                        "iconClass": "file",
+                        "fieldType": "file",
+                        "fieldPlaceholder": "Mesh path"
+                    },
+                    {
+                        "label": "Surface name",
+                        "fieldName": "surfaceName",
+                        "iconClass": "file",
+                        "fieldType": "text",
+                        "fieldValue": "Surface",
+                        "fieldPlaceholder": "Surface name"
+                    },
+                    {
+                        "label": "Spotlight name",
+                        "fieldName": "spotlightName",
+                        "iconClass": "file",
+                        "fieldType": "text",
+                        "fieldValue": "Spotlight",
+                        "fieldPlaceholder": "Spotlight name"
+                    },
+                    {
+                        "label": "Vision sensor name",
+                        "fieldName": "visionSensorName",
+                        "iconClass": "file",
+                        "fieldType": "text",
+                        "fieldValue": "Vision_sensor",
+                        "fieldPlaceholder": "Vision sensor name"
+                    },
+                    {
+                        "label": "Peg name",
+                        "fieldName": "pegName",
+                        "iconClass": "file",
+                        "fieldType": "text",
+                        "fieldValue": "Cylinder",
+                        "fieldPlaceholder": "Peg name"
+                    }
+                ]
+            }
+        }
+    ]
+}

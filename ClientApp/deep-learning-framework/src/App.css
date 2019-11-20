@@ -32,4 +32,19 @@
   margin-top: 20px;
 }
 
+.task-details{
+  margin-top: 30px;
+}
+
+button.ui.button{
+  margin-top:30px;
+}
 .hidden { display:none; }
+
+.ui.card, .ui.cards>.card{
+  min-height: 100px;
+}
+
+.ui.card.dimmer{
+  min-height: 100px;
+}

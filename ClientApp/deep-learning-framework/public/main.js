@@ -10,25 +10,34 @@ const isDev = require('electron-is-dev');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-
+const task = require('./Services/TaskService');
+const TaskService = task.TaskService;
 let mainWindow;
 
-function RunPythonApp(param) {
-  
-}
+ipcMain.on('get-init-data', (event, arg) => {
+  var task = new TaskService();
+  var sceneObject = task.jsonParser('./public/Task/tasks.json')
+  event.returnValue = sceneObject;
+});
 
 ipcMain.on('form-data', (event, arg) => {
-    
-    exec('python3 ./../../PythonClient/main.py '+arg.datasetCount+' '+ arg.meshCount+' '+arg.meshPath, (error, stdout, stderr) => {
+    var vrepPath = arg.base.vrepPath;
+    var arguments = arg.base.taskName;
+    var inputs = arg.inputs;
+    for (let i = 0; i < inputs.length; i++) {
+      const element = inputs[i];
+      arguments += " "+ element.value;
+    }
+    console.log(arguments);
+    /*
+    exec('python3 ./../../PythonClient/main.py ' + arguments, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
         return;
       }
       console.log(`stdout: ${stdout}`);
       console.error(`stderr: ${stderr}`);
-      console.log(arg);
-    });
-  
+    });*/
 });
 
 function createWindow() {
