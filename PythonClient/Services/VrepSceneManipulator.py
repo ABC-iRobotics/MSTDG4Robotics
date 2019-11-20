@@ -9,6 +9,7 @@ class VrepSceneManipulator:
     def __init__(self, vrepConn, binPickingScene):
         self.vrepConn = vrepConn
         self.binPickingScene = binPickingScene
+        self.helper = hp.Helper()
 
     def SetObjectsToDynamic(self, name, objectHandleList):
         for i in objectHandleList:
@@ -54,10 +55,7 @@ class VrepSceneManipulator:
 
     def RePaintElement(self, element, isRandom):
         #element is a VrepObject
-        floats = [0.5, 0.5, 0.5]
-        if isRandom:
-            floats = [hp.Helper.GetRandom(0, 101, True), hp.Helper.GetRandom(0, 101, True), hp.Helper.GetRandom(0, 101, True)]
-        
+        floats = self.helper.GetColors(True)
         element.SetColor(floats)
         return 0
 

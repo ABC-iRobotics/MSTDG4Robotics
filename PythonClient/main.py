@@ -5,9 +5,13 @@ import Tasks.BinPickingScene as bps
 import Tasks.PegTransferScene as pts
 
 def main():
-    datasetCount = 10
+    datasetCount = 1
     meshCount = 20
-    meshName = 'tube.obj'
+    selectedProgram = 'BinPicking'
+    meshName = None
+
+    if selectedProgram is 'PegTransfer':
+        meshName = 'tube.obj'
     if len(sys.argv) > 1:
         datasetCount = int(sys.argv[1])
     if len(sys.argv) > 2:
@@ -18,8 +22,6 @@ def main():
     simulationSpeed = 1
     vrepConn = vcon.VrepConnector()
     
-    selectedProgram = 'PegTransfer'
-
     if vrepConn.connectionWasSuccesfull:    
         vrepConn.start()
         vrepConn.SetSimulationSpeed(simulationSpeed) #value can set from -3 (0.1x speed) to +6 (64x speed)
@@ -27,7 +29,7 @@ def main():
         #Logic starts here
         #-----------------
         if selectedProgram is 'BinPicking':
-            binPickingScene = bps.BinPickingScene(vrepConn, 'Table', 'Bin', 'Vision_sensor', meshName, meshCount, datasetCount)
+            binPickingScene = bps.BinPickingScene(vrepConn, 'Table', 'Bin', 'Vision_sensor', meshName, meshCount)
             for dbCount in range(datasetCount):
                 binPickingScene.Step()
 

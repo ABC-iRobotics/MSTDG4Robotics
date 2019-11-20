@@ -1,3 +1,5 @@
+import uuid
+
 import Services.VrepObject as vo
 import Services.VrepSceneDrawer as vdrawer
 import Services.VrepSceneManipulator as sceneMan
@@ -16,12 +18,12 @@ class BinPickingScene:
         #   how many part will be appeared, 
         #   how many data should be generated
 
-    def __init__(self, vrepConnector, tableName, binName, visionSensorName, meshPath, elementsCount = 10):
+    def __init__(self, vrepConnector, tableName, binName, visionSensorName, meshPath = None, elementsCount = 10):
         self.elementsCount = elementsCount
 
         self.vrepConn = vrepConnector
 
-        self.drawer = vdrawer.VrepSceneDrawer(vrepConnector, self)
+        self.drawer = vdrawer.VrepSceneDrawer(vrepConnector)
         self.meshPath = meshPath
         self.manipulator = sceneMan.VrepSceneManipulator(vrepConnector, self)
         self.mongoDb = MS.MongoService('BinPicking')
@@ -30,8 +32,9 @@ class BinPickingScene:
         self.bin.SetToDynamic()
 
         self.table = vo.VrepObject(vrepConnector, tableName)
-        self.visionSencor = vo.VrepObject(vrepConnector, visionSensorName)
+        self.visionSensor = vo.VrepObject(vrepConnector, visionSensorName)
         self.shapeList = []
+        self.guid = str(uuid.uuid4())
 
     def Step(self):
         self.DrawMeshes()
@@ -39,17 +42,17 @@ class BinPickingScene:
         self.manipulator.RePaintElement(self.table, True)
         self.manipulator.RePaintElement(self.bin, True)
 
-        imgPath, deptPath, resolution = self.manipulator.GetImage('Vision_sensor')
+        imgPath, deptPath, resolution = self.manipulator.GetImage(self.visionSensor.name)
             
         self.GetPropertiesOfScreenObjects(imgPath, deptPath, resolution)
 
         self.DeleteCreatedObjects()
 
     def GetPropertiesOfScreenObjects(self, path, deptBuffer, deptResolution):
-        trainingImage = TI.TrainingImage(path, deptBuffer, deptResolution)
+        trainingImage = TI.TrainingImage(path, deptBuffer, deptResolution, self.guid)
 
         for element in self.shapeList:
-            position_rel, orienatation_rel = element.GetObjectPositionAndOrientation('Vision_sensor')
+            position_rel, orienatation_rel = element.GetObjectPositionAndOrientation(self.visionSensor.name)
             position_abs, orientation_abs = element.GetObjectPositionAndOrientation(None)
             trainingImage.addFixtureByParams(position_abs, orientation_abs, position_rel, orienatation_rel)
 

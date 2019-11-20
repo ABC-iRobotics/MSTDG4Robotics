@@ -3,7 +3,7 @@ import Helper as hp
 
 class VrepSceneDrawer:
     
-    def __init__(self, vrepConn, taskName='BinPicking', functionName='insertMesh', folderName = 'meshes/'):
+    def __init__(self, vrepConn, taskName='BinPicking', functionName='insertMesh', folderName = 'meshes'):
         self.functionName = functionName
         self.vrepConn = vrepConn
         self.folderName = folderName    
@@ -15,7 +15,7 @@ class VrepSceneDrawer:
         if self.meshName is not None:
             fileName = glob.glob( globalPath +'/../' +self.folderName+'/'+self.taskName+'/'+ self.meshName)
         else:    
-            fileName = glob.glob( globalPath +'/../' +self.folderName + "*.stl")
+            fileName = glob.glob( globalPath +'/../' +self.folderName+'/'+self.taskName+'/' + "*.stl")
         return fileName
 
     def DrawMesh(self, meshName, scaling = 1, colors = None, position = None, orientation = None):
