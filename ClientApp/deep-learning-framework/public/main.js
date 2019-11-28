@@ -29,7 +29,6 @@ ipcMain.on('form-data', (event, arg) => {
       arguments += " "+ element.value;
     }
     console.log(arguments);
-    /*
     exec('python3 ./../../PythonClient/main.py ' + arguments, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
@@ -37,7 +36,8 @@ ipcMain.on('form-data', (event, arg) => {
       }
       console.log(`stdout: ${stdout}`);
       console.error(`stderr: ${stderr}`);
-    });*/
+    });
+
 });
 
 function createWindow() {
@@ -50,7 +50,7 @@ function createWindow() {
             nodeIntegration: true
         }
     });
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
   mainWindow.on('closed', () => mainWindow = null);
 }

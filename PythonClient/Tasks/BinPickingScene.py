@@ -18,13 +18,13 @@ class BinPickingScene:
         #   how many part will be appeared, 
         #   how many data should be generated
 
-    def __init__(self, vrepConnector, tableName, binName, visionSensorName, meshPath = None, elementsCount = 10):
-        self.elementsCount = elementsCount
+    def __init__(self, vrepConnector, meshName = None, meshCount = 20, tableName = 'Table', visionSensorName = 'Vision_sensor', binName = 'Bin'):
+        self.elementsCount = meshCount
 
         self.vrepConn = vrepConnector
 
         self.drawer = vdrawer.VrepSceneDrawer(vrepConnector)
-        self.meshPath = meshPath
+        self.meshPath = meshName
         self.manipulator = sceneMan.VrepSceneManipulator(vrepConnector, self)
         self.mongoDb = MS.MongoService('BinPicking')
 
