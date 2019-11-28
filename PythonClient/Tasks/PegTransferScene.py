@@ -32,7 +32,6 @@ class PegTransferScene:
         self.fixtures = [] 
         self.lights = self.manipulator.GetObjectList(spotlight, 1)
         self.cylinders = self.manipulator.GetObjectList(cylinderName, 1)
-        self.SaveBaseData()
         
     def Step(self):
         count = self.helper.GetRandom(1, len(self.cylinders), False)

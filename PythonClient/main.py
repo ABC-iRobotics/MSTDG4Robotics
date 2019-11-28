@@ -41,7 +41,7 @@ def main():
             pegTransferScene.Init(sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
             for dbCount in range(datasetCount):
                 pegTransferScene.Step()
-        
+            pegTransferScene.SaveBaseData()
 
         #-----------------
         #Logic ends here
