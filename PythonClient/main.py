@@ -32,7 +32,8 @@ def main():
         #Logic starts here
         #-----------------
         if selectedTask == 'BinPicking':
-            binPickingScene = bps.BinPickingScene(vrepConn, sys.argv[4], int(sys.argv[5]), sys.argv[6], sys.argv[7], sys.argv[8])
+            binPickingScene = bps.BinPickingScene(vrepConn, sys.argv[4], int(sys.argv[5]))
+            binPickingScene.Init(sys.argv[6], sys.argv[7], sys.argv[8])
             for dbCount in range(datasetCount):
                 binPickingScene.Step()
 

@@ -18,23 +18,23 @@ class BinPickingScene:
         #   how many part will be appeared, 
         #   how many data should be generated
 
-    def __init__(self, vrepConnector, meshName = None, meshCount = 20, tableName = 'Table', visionSensorName = 'Vision_sensor', binName = 'Bin'):
-        self.elementsCount = meshCount
-
+    def __init__(self, vrepConnector, meshName = None, elementsCount = 20):
+        
         self.vrepConn = vrepConnector
-
         self.drawer = vdrawer.VrepSceneDrawer(vrepConnector)
-        self.meshPath = meshName
         self.manipulator = sceneMan.VrepSceneManipulator(vrepConnector, self)
         self.mongoDb = MS.MongoService('BinPicking')
 
-        self.bin = vo.VrepObject(vrepConnector, binName)
-        self.bin.SetToDynamic()
-
-        self.table = vo.VrepObject(vrepConnector, tableName)
-        self.visionSensor = vo.VrepObject(vrepConnector, visionSensorName)
-        self.shapeList = []
+        self.elementsCount = elementsCount
+        self.meshName = meshName
         self.guid = str(uuid.uuid4())
+
+    def Init(self, tableName = 'Table', visionSensorName = 'Vision_sensor', binName = 'Bin'):
+        self.bin = vo.VrepObject(self.vrepConn, binName)
+        self.bin.SetToDynamic()
+        self.table = vo.VrepObject(self.vrepConn, tableName)
+        self.visionSensor = vo.VrepObject(self.vrepConn, visionSensorName)
+        self.shapeList = []
 
     def Step(self):
         self.DrawMeshes()
@@ -60,7 +60,7 @@ class BinPickingScene:
 
     def DrawMeshes(self):
         for i in range(self.elementsCount):
-            self.drawer.DrawMesh(self.meshPath, 0.004)
+            self.drawer.DrawMesh(self.meshName, 0.004)
             if i == 0:
                 self.AddShape("Shape")
             else: 

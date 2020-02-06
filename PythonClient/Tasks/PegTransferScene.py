@@ -15,25 +15,33 @@ class PegTransferScene:
         self.vrepConn = vrepConnector
         self.helper = hp.Helper()
         self.taskName = 'PegTransfer'
-        
-        self.drawer = vdrawer.VrepSceneDrawer(vrepConnector, self.taskName)
+        self.meshPath = meshPath
+        self.guid = str(uuid.uuid4())
 
+        self.drawer = vdrawer.VrepSceneDrawer(vrepConnector, self.taskName)
         self.manipulator = sceneMan.VrepSceneManipulator(vrepConnector, self)
         self.mongoDb = MS.MongoService(self.taskName)
         self.mongoDbBase = MS.MongoService(self.taskName+'Base')
 
-        self.meshPath = meshPath
-
-
     def Init(self, surfaceName, spotlight, visionSensor, cylinderName):
         self.surface = vo.VrepObject(self.vrepConn, surfaceName)
         self.visionSensor = vo.VrepObject(self.vrepConn, visionSensor)
-        self.guid = str(uuid.uuid4())
-        self.fixtures = [] 
         self.lights = self.manipulator.GetObjectList(spotlight, 1)
         self.cylinders = self.manipulator.GetObjectList(cylinderName, 1)
+
+        self.fixtures = [] 
         
     def Step(self):
+        
+        self.DrawPlasticTubesRandomly()
+
+        imgPath, deptPath, resolution = self.manipulator.GetImage(self.visionSensor.name)
+            
+        self.GetPropertiesOfScreenObjects(imgPath, deptPath, resolution)
+        
+        self.DeleteCreatedObjects()
+    
+    def DrawPlasticTubesRandomly(self):
         count = self.helper.GetRandom(1, len(self.cylinders), False)
         randomHistoryList = []
         for i in range(count):
@@ -51,13 +59,6 @@ class PegTransferScene:
                     self.fixtures.append(vo.VrepObject(self.vrepConn, ("Shape"+ str(i-1))))
                 self.fixtures[-1].SetTransparency(0.7)
 
-        imgPath, deptPath, resolution = self.manipulator.GetImage(self.visionSensor.name)
-            
-        self.GetPropertiesOfScreenObjects(imgPath, deptPath, resolution)
-        
-        self.DeleteCreatedObjects()
-        print('Test')
-        
     def GetPropertiesOfScreenObjects(self, path, deptBuffer, deptResolution):
         trainingImage = TI.TrainingImage(path, deptBuffer, deptResolution, self.guid)
 

@@ -21,7 +21,7 @@ class VrepObject:
             print("ERROR: VrepObject: GetObject")
         return handle
     
-    def GetObjectPositionAndOrientation(self, referenceName = None):
+    def GetObjectPositionAndOrientaRtion(self, referenceName = None):
         if self.position is not None and self.orientation is not None:
             return self.position, self.orientation
         elif self.handler > -1:

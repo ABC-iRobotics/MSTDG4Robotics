@@ -11,12 +11,6 @@ class VrepSceneManipulator:
         self.binPickingScene = binPickingScene
         self.helper = hp.Helper()
 
-    def SetObjectsToDynamic(self, name, objectHandleList):
-        for i in objectHandleList:
-            self.vrepConn.vrep.simxSetModelProperty(self.vrepConn.clientID, i, 0, self.vrepConn.vrepConst.simx_opmode_blocking)
-            self.vrepConn.vrep.simxSetObjectIntParameter(self.vrepConn.clientID, i, self.vrepConn.vrepConst.sim_shapeintparam_static, 0, self.vrepConn.vrepConst.simx_opmode_blocking)
-            self.vrepConn.vrep.simxSetObjectIntParameter(self.vrepConn.clientID, i, self.vrepConn.vrepConst.sim_shapeintparam_respondable, 1, self.vrepConn.vrepConst.simx_opmode_blocking)
-    
     def GetObjectHandleList(self, name, count, startIndex = None):
         objectHandleList = []
         if count < 1: 
@@ -53,6 +47,12 @@ class VrepSceneManipulator:
                 i+=1
         return objectList
 
+    def SetObjectsToDynamic(self, name, objectHandleList):
+        for i in objectHandleList:
+            self.vrepConn.vrep.simxSetModelProperty(self.vrepConn.clientID, i, 0, self.vrepConn.vrepConst.simx_opmode_blocking)
+            self.vrepConn.vrep.simxSetObjectIntParameter(self.vrepConn.clientID, i, self.vrepConn.vrepConst.sim_shapeintparam_static, 0, self.vrepConn.vrepConst.simx_opmode_blocking)
+            self.vrepConn.vrep.simxSetObjectIntParameter(self.vrepConn.clientID, i, self.vrepConn.vrepConst.sim_shapeintparam_respondable, 1, self.vrepConn.vrepConst.simx_opmode_blocking)
+    
     def RePaintElement(self, element, isRandom):
         #element is a VrepObject
         floats = self.helper.GetColors(True)
@@ -105,6 +105,3 @@ class VrepSceneManipulator:
             print('VrepSceneManipulator: GetImage: Cannot get handler object')
         return 0
 
-    def RemoveObject(self, element):
-        element.Remove()
-        self.binPickingScene.RemoveShape()
