@@ -1,1 +1,1 @@
-# bin_picking_project
+# Massive Synthetic Training Data Generator for Robotics ML Applications
