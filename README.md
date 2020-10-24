@@ -1,9 +1,10 @@
 # bin_picking_project
 
-This branch is responsible to process the images about the bin and the items within. YOLOv3 algorithm is used to imageprocessing that is a neural network based deep-learning algorithm. The neural network should taught with the images of items. These training images come from previous part of the project or you can download some simple images from Google, for instance with the browser extension "Fatkun Batch Download Image".
+This branch is responsible to generate training images for bin picking problem with OE logos and teach YOLOv3 deep learning algorithm to detect the objects in the bin in real time.
 Steps for the neural network training:
 
 [1]: bin_picking_development/PythonClient: Generate trainig images and object details into the database. Images shall be generated in the image_set folder. Training details are stored in a MongoDB database in the background. 
+
 [2]: bin_picking_yolo\yolov3_test: Run getMongodb script in order to generate the the object details in the format required to YOLOv3. These files are generated in the newwwFolderrr folder.
 
 [3]: Create the necessary files to the training
