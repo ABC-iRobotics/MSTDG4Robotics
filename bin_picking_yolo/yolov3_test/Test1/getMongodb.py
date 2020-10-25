@@ -136,14 +136,14 @@ def create_text(records, headers, beg, end):
         boundingBoxSize = rotBoundBox(float(record[12]), float(record[13]), float(record[14]), float(record[15]), float(record[9]), float(record[10]), float(record[11]))
         #boundingBoxSize = [0.1, 0.1]
 
-    #Determine whether the object orientation is OE or EO
+    #Determine whether the object orientation is OE or 3O
         vec_to_OEorientation_1 = [1, 1, 1]
         vec_to_OEorientation_2 = [0, 1, 1]
         quat_obj = np.array([float(record[15]), float(record[12]), float(record[13]), float(record[14])])
         transformed_vector_to_OEorientation_1 = rotate_vector_original(vec_to_OEorientation_1, quat_obj)
         transformed_vector_to_OEorientation_2 = rotate_vector_original(vec_to_OEorientation_2, quat_obj)
         if transformed_vector_to_OEorientation_1[2] > transformed_vector_to_OEorientation_2[2]:
-            isOE_orientation = 1 #0: EO, 1:OE
+            isOE_orientation = 1 #0: 3O, 1:OE
         else:
             isOE_orientation = 0
         isInBin = float(record[11]) < 1.5
