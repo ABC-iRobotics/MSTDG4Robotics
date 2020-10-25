@@ -107,55 +107,6 @@ def create_objects(results):
             records.append(tmp)
     return records, headers
 
-def create_objects_bkp_20201010(results):
-    '''
-    Take the query outcome and convert to a list and return it.
-    It also defines headers and return it.
-    '''
-    records = []
-    headers = ['id','imageUrl','absolutePosition1', 'absolutePosition2', 'absolutePosition3', 'absoluteOrientation1','absoluteOrientation2','absoluteOrientation3','absoluteOrientation4']
-    for record in results:
-        for position in record['fixtures']:
-            tmp = []
-            try:
-                tmp.append(str(record['_id']).split("(")[0])
-            except IndexError:
-                tmp.append('NA')
-            try:
-                tmp.append(record['imageUrl'])
-            except IndexError:
-                tmp.append('NA')
-            try:
-                tmp.append(str(position['absolutePosition'][0]))
-            except IndexError:
-                tmp.append('NA')
-            try:
-                tmp.append(str(position['absolutePosition'][1]))
-            except IndexError:
-                tmp.append('NA')
-            try:
-                tmp.append(str(position['absolutePosition'][2]))
-            except IndexError:
-                tmp.append('NA')
-            try:
-                tmp.append(str(position['absoluteOrientation'][0]))
-            except IndexError:
-                tmp.append('NA')
-            try:
-                tmp.append(str(position['absoluteOrientation'][1]))
-            except IndexError:
-                tmp.append('NA')
-            try:
-                tmp.append(str(position['absoluteOrientation'][2]))
-            except IndexError:
-                tmp.append('NA')
-            try:
-                tmp.append(str(position['absoluteOrientation'][3]))
-            except IndexError:
-                tmp.append('NA')
-            records.append(tmp)
-    return records, headers
-
 def create_table(records, headers, file_path):
     "Take a list of records and headers and generate csv"
     f = open(file_path, 'w', encoding='utf-8')
@@ -178,16 +129,29 @@ def create_text(records, headers, beg, end):
     save_path = os.getcwd() + "\\newwwFolderrr"
     for record in records:
         #print("x:", float(record[2]), "\ty:", float(record[3]), "\tz:", float(record[4])
-        #print("x_rel:\t", float(record[9]), "\ty_rel:\t", float(record[10]), "\tz_rel:\t", float(record[11]))
+        #print("x_rel:\t", float(record[9]), "\ty_rel:\t", float(record[10]), "\tz_rel:\t", float(record[11]),"\nrel_quaternions:",float(record[12]), ", ",float(record[13]), ", ", float(record[14]), ", ", float(record[15]))
         #print("x:",float(record[2]),"\ty:",float(record[3]),"\tz:",float(record[4]),"\nquaternions:",float(record[5]), ", ",float(record[6]), ", ", float(record[7]), ", ", float(record[8]))
         midX=(((float(record[9]) - 0)*1.821115)/((float(record[11]))*(-2.1028367))) + 0.5
         midY=(((float(record[10]) - 0) * 1.821115) / (float(record[11]) * (2.1028367))) + 0.5
-        boundingBoxSize = rotBoundBox(float(record[5]), float(record[6]), float(record[7]), float(record[8]), float(record[9]), float(record[10]), float(record[11]))
+        boundingBoxSize = rotBoundBox(float(record[12]), float(record[13]), float(record[14]), float(record[15]), float(record[9]), float(record[10]), float(record[11]))
         #boundingBoxSize = [0.1, 0.1]
+
+    #Determine whether the object orientation is OE or EO
+        vec_to_OEorientation_1 = [1, 1, 1]
+        vec_to_OEorientation_2 = [0, 1, 1]
+        quat_obj = np.array([float(record[15]), float(record[12]), float(record[13]), float(record[14])])
+        transformed_vector_to_OEorientation_1 = rotate_vector_original(vec_to_OEorientation_1, quat_obj)
+        transformed_vector_to_OEorientation_2 = rotate_vector_original(vec_to_OEorientation_2, quat_obj)
+        if transformed_vector_to_OEorientation_1[2] > transformed_vector_to_OEorientation_2[2]:
+            isOE_orientation = 1 #0: EO, 1:OE
+        else:
+            isOE_orientation = 0
         isInBin = float(record[11]) < 1.5
+
+    #Write the object YOLO details into each text file
         if record[1]==tmp2:
             if isInBin:
-                temp=temp + "0 " + str(midX) +" " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(boundingBoxSize[1]) + str('\n')
+                temp=temp + str(isOE_orientation) + " " + str(midX) +" " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(boundingBoxSize[1]) + str('\n')
         elif file_name != 'NA':
             temp=temp.replace("[","").replace("]","").replace("'","").replace(",","")
             completeName = os.path.join(save_path, file_name)
@@ -196,13 +160,13 @@ def create_text(records, headers, beg, end):
             f.close()
             imageNames = imageNames + "data/obj/" + find_between(record[1], beg, end) + ".jpg\n"
             if isInBin:
-                temp = "0 " + str(midX) + " " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(
+                temp = str(isOE_orientation) + " " + str(midX) + " " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(
                     boundingBoxSize[1]) + str('\n')
             else:
                 temp = ""
         else:
             if isInBin:
-                temp = "0 " + str(midX) + " " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(
+                temp = str(isOE_orientation) + " "+ str(midX) + " " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(
                     boundingBoxSize[1]) + str('\n')
             else:
                 temp = ""
@@ -319,10 +283,10 @@ def maxDiff(a):
     return dmax
 
 def maxLimit(width):
-    x_width = 0.024
-    y_width = 0.09456
+    x_height = 0.024
+    y_depth = 0.09456
     z_width = 0.128
-    maxDiagonal= math.sqrt((math.pow(x_width,2))+(math.pow(y_width,2))+(math.pow(z_width,2)))
+    maxDiagonal= math.sqrt((math.pow(x_height,2))+(math.pow(y_depth,2))+(math.pow(z_width,2)))
     limMax = maxDiagonal*1.82115/1.458/2.1028367
     if limMax < width:
         return width
@@ -447,20 +411,20 @@ def qconjugate(q):
     return np.array(q) * np.array([1.0, -1, -1, -1])
 def rotBoundBox(q1, q2, q3, q4, object_x, object_y, object_z):
     #Give the size of the object! (X,Y,Z)
-    x_width = 0.024
-    y_width = 0.09456
+    x_height = 0.024
+    y_depth = 0.09456
     z_width = 0.128
-    maxDiagonal= math.sqrt((math.pow(x_width,2))+(math.pow(y_width,2))+(math.pow(z_width,2)))
+    maxDiagonal= math.sqrt((math.pow(x_height,2))+(math.pow(y_depth,2))+(math.pow(z_width,2)))
     maxDiagonalOnYolo = maxDiagonal*1.82115/1.458/2.1028367
-    vector_object = [x_width, y_width, z_width]#DGU - 20200926
-    boundBox1=np.array([-x_width/2, -y_width/2, -z_width/2])
-    boundBox2=np.array([-x_width/2, -y_width/2, z_width/2])
-    boundBox3=np.array([-x_width/2, y_width/2, -z_width/2])
-    boundBox4=np.array([-x_width/2, y_width/2, z_width/2])
-    boundBox5=np.array([x_width/2, -y_width/2, -z_width/2])
-    boundBox6=np.array([x_width/2, -y_width/2, z_width/2])
-    boundBox7=np.array([x_width/2, y_width/2, -z_width/2])
-    boundBox8=np.array([x_width/2, y_width/2, z_width/2])
+    vector_object = [x_height, y_depth, z_width]#DGU - 20200926
+    boundBox1=np.array([-x_height/2, -y_depth/2, -z_width/2])
+    boundBox2=np.array([-x_height/2, -y_depth/2, z_width/2])
+    boundBox3=np.array([-x_height/2, y_depth/2, -z_width/2])
+    boundBox4=np.array([-x_height/2, y_depth/2, z_width/2])
+    boundBox5=np.array([x_height/2, -y_depth/2, -z_width/2])
+    boundBox6=np.array([x_height/2, -y_depth/2, z_width/2])
+    boundBox7=np.array([x_height/2, y_depth/2, -z_width/2])
+    boundBox8=np.array([x_height/2, y_depth/2, z_width/2])
     #Create quaternion vector from database
     #quat1_original=np.array([q1, q2, q3, q4])
     quat1_original = np.array([q4, q1, q2, q3]) #modified by DGU 20200921 V-rep gives x,y,z,w -> rotate_vector uses w,x,y,z
