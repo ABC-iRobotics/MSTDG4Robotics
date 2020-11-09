@@ -10,8 +10,12 @@ class BaseData:
     def addFixture(self, fixture):
         self.fixtures.append(fixture)
         
-    def addFixtureByParams(self, abs_pos, abs_or, rel_pos, rel_or):
-        fixture = fx.Fixture(abs_pos, abs_or, rel_pos, rel_or)
+    def addFixtureByParams(self, abs_pos, abs_or, rel_pos, rel_or, size):
+        fixture = fx.Fixture(abs_pos, abs_or, rel_pos, rel_or, size)
+        self.addFixture(fixture)
+
+    def addPositionToFixture(self, abs_pos):
+        fixture = fx.Fixture(abs_pos)
         self.addFixture(fixture)
 
     def dictMapper(self, name):

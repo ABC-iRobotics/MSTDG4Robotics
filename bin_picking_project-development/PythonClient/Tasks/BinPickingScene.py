@@ -16,7 +16,7 @@ class BinPickingScene:
         #   bin name, 
         #   vision sensor name, 
         #   how many part will be appeared, 
-        #   how many data should be generated
+        #   how many data(image) should be generated
 
     def __init__(self, vrepConnector, meshName = None, elementsCount = 20):
         
@@ -24,17 +24,19 @@ class BinPickingScene:
         self.drawer = vdrawer.VrepSceneDrawer(vrepConnector)
         self.manipulator = sceneMan.VrepSceneManipulator(vrepConnector, self)
         self.mongoDb = MS.MongoService('BinPicking')
-
         self.elementsCount = elementsCount
         self.meshName = meshName
         self.guid = str(uuid.uuid4())
 
-    def Init(self, tableName = 'Table', visionSensorName = 'Vision_sensor', binName = 'Bin'):
+    def Init(self, tableName = 'Table', visionSensorName = 'Vision_sensor', binName = 'Bin', scaling = 0.004, visionSensorHeight = 1.93):
         self.bin = vo.VrepObject(self.vrepConn, binName)
         #self.bin.SetToDynamic() #commented out so that the bin cannot be moved during the simulation. #DGU - 20200922
         self.table = vo.VrepObject(self.vrepConn, tableName)
         self.visionSensor = vo.VrepObject(self.vrepConn, visionSensorName)
         self.shapeList = []
+        self.scalingObj = scaling
+        self.visionSensorHeight = visionSensorHeight
+        self.visionSensor.SetObjectPosition([0.05, 0.125, visionSensorHeight])
 
     def Step(self):
         self.vrepConn.start()
@@ -44,24 +46,29 @@ class BinPickingScene:
         time.sleep(1)  # so that every object falls down before pausing the simulation#DGU - 20200920
         self.vrepConn.pause()
         imgPath, deptPath, resolution = self.manipulator.GetImage(self.visionSensor.name)
-            
+
         self.GetPropertiesOfScreenObjects(imgPath, deptPath, resolution)
 
         self.DeleteCreatedObjects()
 
     def GetPropertiesOfScreenObjects(self, path, deptBuffer, deptResolution):
-        trainingImage = TI.TrainingImage(path, deptBuffer, deptResolution, self.guid)
-
+        visionSensorPos = self.visionSensor.GetObjectPosition()
+        visionSensorAngle = self.visionSensor.GetVisionSensorAngle(self.visionSensor.clientID, self.visionSensor.opMode)
+        visionSensor = [visionSensorPos, visionSensorAngle]
+        tablePos = self.table.GetObjectPosition()
+        tableSize = self.table.GetObjectSize(self.table.clientID, self.table.opMode)
+        table = [tablePos, tableSize]
+        trainingImage = TI.TrainingImage(path, deptBuffer, deptResolution, self.guid, visionSensor, table)
         for element in self.shapeList:
-            position_rel, orienatation_rel = element.GetObjectPositionAndOrientation(self.visionSensor.name)
-            position_abs, orientation_abs = element.GetObjectPositionAndOrientation(None)
-            trainingImage.addFixtureByParams(position_abs, orientation_abs, position_rel, orienatation_rel)
+            position_rel, orienatation_rel, size = element.GetObjectPositionAndOrientation(self.visionSensor.name)
+            position_abs, orientation_abs, dummy_size = element.GetObjectPositionAndOrientation(None)
+            trainingImage.addFixtureByParams(position_abs, orientation_abs, position_rel, orienatation_rel, size)
 
         self.mongoDb.insert(trainingImage.dictMapper())
 
     def DrawMeshes(self):
         for i in range(self.elementsCount):
-            self.drawer.DrawMesh(self.meshName, 0.004) #0.004->0.001
+            self.drawer.DrawMesh(self.meshName, self.scalingObj) #0.004->0.001
             if i == 0:
                 self.AddShape("Shape")
             else: 
