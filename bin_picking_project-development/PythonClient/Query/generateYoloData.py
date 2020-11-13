@@ -6,6 +6,8 @@ import math
 
 trainFile_name = 'train.txt'
 testFile_name = 'test.txt'
+objNameFile_name = "obj.names"
+OBJ_NAMES = ["3O", "OE"]
 save_path = os.getcwd() + "\\image_yolo_set"
 
 def Generate():
@@ -240,6 +242,15 @@ def calculate_and_create_text(records, headers, beg, end):
     # f = open(completeImageName_test, 'w', encoding='utf-8')
     # f.write(str(imagesNames_test))
     # f.close()
+
+    #Create obj.names:
+    path_objnames = os.path.join(save_path, objNameFile_name)
+    f = open(path_objnames, 'w', encoding='utf-8')
+    #f.writelines(["3O", "OE"])
+    for obj_name in OBJ_NAMES:
+         f.write(obj_name)
+         f.write("\n")
+    f.close()
 
     print("generateYoloData: Training data for YOLO was generated")
 
