@@ -611,3 +611,59 @@ def quat2axangle(quat, identity_thresh=None):
     # Make sure w is not slightly above 1 or below -1
     theta = 2 * math.acos(max(min(w, 1), -1))
     return  np.array([x, y, z]) / math.sqrt(len2), theta
+
+
+2
+
+
+def eulerAnglesToRotationMatrix(theta):
+    3
+
+
+def eulerAnglesToRotationMatrix(theta):
+    R_x = np.array([[1, 0, 0],
+                    [0, math.cos(theta[0]), -math.sin(theta[0])],
+                    [0, math.sin(theta[0]), math.cos(theta[0])]
+                    ])
+
+    R_y = np.array([[math.cos(theta[1]), 0, math.sin(theta[1])],
+                    [0, 1, 0],
+                    [-math.sin(theta[1]), 0, math.cos(theta[1])]
+                    ])
+
+    R_z = np.array([[math.cos(theta[2]), -math.sin(theta[2]), 0],
+                    [math.sin(theta[2]), math.cos(theta[2]), 0],
+                    [0, 0, 1]
+                    ])
+
+    R = np.dot(R_z, np.dot(R_y, R_x))
+    return R
+
+def trig(angle):
+  r = math.radians(angle)
+  return math.cos(r), math.sin(r)
+
+def TransformationMatrix(rotation, translation):
+  xC, xS = trig(rotation[0])
+  yC, yS = trig(rotation[1])
+  zC, zS = trig(rotation[2])
+  dX = translation[0]
+  dY = translation[1]
+  dZ = translation[2]
+  Translate_matrix = np.array([[1, 0, 0, dX],
+                               [0, 1, 0, dY],
+                               [0, 0, 1, dZ],
+                               [0, 0, 0, 1]])
+  Rotate_X_matrix = np.array([[1, 0, 0, 0],
+                              [0, xC, -xS, 0],
+                              [0, xS, xC, 0],
+                              [0, 0, 0, 1]])
+  Rotate_Y_matrix = np.array([[yC, 0, yS, 0],
+                              [0, 1, 0, 0],
+                              [-yS, 0, yC, 0],
+                              [0, 0, 0, 1]])
+  Rotate_Z_matrix = np.array([[zC, -zS, 0, 0],
+                              [zS, zC, 0, 0],
+                              [0, 0, 1, 0],
+                              [0, 0, 0, 1]])
+  return np.dot(Rotate_Z_matrix,np.dot(Rotate_Y_matrix,np.dot(Rotate_X_matrix,Translate_matrix)))

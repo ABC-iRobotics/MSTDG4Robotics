@@ -1,4 +1,6 @@
 import random
+import Query.quaternions as quat
+import numpy as np
 
 class Helper:
     
@@ -6,6 +8,7 @@ class Helper:
         value = random.randint(valFrom, valTo)
         if isBwZeroAndOne:
             value = value/100
+            #value = value/abs(valTo-valFrom)
         return value
     
     def GetColors(self, isRandom):
@@ -17,12 +20,27 @@ class Helper:
     def GetRandomAbsolutePosition(self, isRandom):
         position = [0, 0, 0.9]
         if isRandom:
-            #position = [self.GetRandom(0,20,True), self.GetRandom(-45,60,True), self.GetRandom(50,80,True)] #100-120 jobb
-            position = [self.GetRandom(-10, 20, True), self.GetRandom(-25, 60, True), 1.1]#DGU: z pos was increased in order to avoid the bug of bin movement - 20200920
+            position = [self.GetRandom(-10, 20, True), self.GetRandom(-25, 60, True), 0.9]#DGU: change the z position if the bin is removed
         return position
     
     def GetRandomAbsoluteOrientation(self, isRandom):
         orientation = [0, 35, 35]
-        if isRandom: 
-             orientation = [self.GetRandom(0,360,True), self.GetRandom(0,360,True), self.GetRandom(0,360,True)]
+        if isRandom:
+            # orientation = [self.GetRandom(0,360,True), self.GetRandom(0,360,True), self.GetRandom(0,360,True)]
+            temp = self.GetRandom(0, 360, False)
+            if temp > 180:
+                y = 90
+            else:
+                y = -90
+            #orientation = [self.GetRandom(0, 360, True), y, self.GetRandom(0, 360, True)]
+            orientation = [0, y, 0]
         return orientation
+
+    def RotateRandomObject(self, isRandom):
+        if isRandom:
+            rotate_x = self.GetRandom(0, 360, False)
+            angleMx = [rotate_x, 0, 0]
+            translationMx = [0,0,0]
+            rotation = quat.TransformationMatrix(angleMx, translationMx)
+            rotationMx = np.transpose(rotation)
+        return rotationMx

@@ -39,6 +39,12 @@ class VrepSceneDrawer:
             floatParamList.extend(self.helper.GetRandomAbsoluteOrientation(True))
         else:
             floatParamList.extend(orientation)
+        #if rotation is None:
+        homTransfMx = self.helper.RotateRandomObject(True)
+        # print("float:", floatParamList)
+        # print("rot", homTransfMx)
+        for raw in homTransfMx:
+            floatParamList.extend(raw)
         floatParamList.append(options)  # shapes have aligned orientations=TRUE; Ignore up-vector coded in fileformat=TRUE
         separator = ',\n'
         print('Call '+self.functionName+ ' with '+ separator.join(meshList)+' parameter.')

@@ -8,6 +8,8 @@ import DataEntities.TrainingImage as TI
 import DataEntities.Fixture as F
 import Services.MongoScv as MS 
 import time #DGU - 09.20
+import random
+
 class BinPickingScene:
 
         #Parameters: 
@@ -28,25 +30,29 @@ class BinPickingScene:
         self.meshName = meshName
         self.guid = str(uuid.uuid4())
 
-    def Init(self, tableName = 'Table', visionSensorName = 'Vision_sensor', binName = 'Bin', scaling = 0.004, visionSensorHeight = 1.93):
+    def Init(self, tableName = 'Table', visionSensorName = 'Vision_sensor', binName = 'Bin', visionSensorHeight = 1.93, minScaling = 0.004, maxScaling = 0.007, depthRequired = True):
         self.bin = vo.VrepObject(self.vrepConn, binName)
         #self.bin.SetToDynamic() #commented out so that the bin cannot be moved during the simulation. #DGU - 20200922
         self.table = vo.VrepObject(self.vrepConn, tableName)
         self.visionSensor = vo.VrepObject(self.vrepConn, visionSensorName)
         self.shapeList = []
-        self.scalingObj = scaling
+        self.minScalingObj = minScaling
+        self.maxScalingObj = maxScaling
         self.visionSensorHeight = visionSensorHeight
         self.visionSensor.SetObjectPosition([0.05, 0.125, visionSensorHeight])
+        self.depthFileRequired = depthRequired
 
     def Step(self):
         self.vrepConn.start()
         self.DrawMeshes()
         self.manipulator.RePaintElement(self.table, True)
         self.manipulator.RePaintElement(self.bin, True)
-        time.sleep(1)  # so that every object falls down before pausing the simulation#DGU - 20200920
+        time.sleep(2.5)  # so that every object falls down before pausing the simulation#DGU - 20200920
         self.vrepConn.pause()
-        imgPath, deptPath, resolution = self.manipulator.GetImage(self.visionSensor.name)
-
+        if self.depthFileRequired == "True" or self.depthFileRequired == "TRUE" or self.depthFileRequired == "true" or self.depthFileRequired == "T"or self.depthFileRequired == "t":
+            imgPath, deptPath, resolution = self.manipulator.GetImage(self.visionSensor.name)
+        else:
+            imgPath, deptPath, resolution = self.manipulator.GetImageWoDepth(self.visionSensor.name)
         self.GetPropertiesOfScreenObjects(imgPath, deptPath, resolution)
 
         self.DeleteCreatedObjects()
@@ -58,7 +64,10 @@ class BinPickingScene:
         tablePos = self.table.GetObjectPosition()
         tableSize = self.table.GetObjectSize(self.table.clientID, self.table.opMode)
         table = [tablePos, tableSize]
-        trainingImage = TI.TrainingImage(path, deptBuffer, deptResolution, self.guid, visionSensor, table)
+        binPos = self.bin.GetObjectPosition()
+        binSize = self.bin.GetObjectSize(self.bin.clientID, self.bin.opMode)
+        bin = [binPos, binSize]
+        trainingImage = TI.TrainingImage(path, deptBuffer, deptResolution, self.guid, visionSensor, table, bin)
         for element in self.shapeList:
             position_rel, orienatation_rel, size = element.GetObjectPositionAndOrientation(self.visionSensor.name)
             position_abs, orientation_abs, dummy_size = element.GetObjectPositionAndOrientation(None)
@@ -68,7 +77,11 @@ class BinPickingScene:
 
     def DrawMeshes(self):
         for i in range(self.elementsCount):
-            self.drawer.DrawMesh(self.meshName, self.scalingObj) #0.004->0.001
+            minScale = self.minScalingObj
+            maxScale = self.maxScalingObj
+            scale = random.uniform(minScale, maxScale)
+            self.drawer.DrawMesh(self.meshName, scale)  # 0.004->0.001
+            #self.drawer.DrawMesh(self.meshName, self.scalingObj) #0.004->0.001
             if i == 0:
                 self.AddShape("Shape")
             else: 

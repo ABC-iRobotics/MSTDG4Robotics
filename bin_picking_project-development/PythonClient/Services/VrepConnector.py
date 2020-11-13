@@ -20,7 +20,7 @@ class VrepConnector:
             self.connectionWasSuccesfull = False
     
     def callScript(self, functionName, inInts=[], inFloats=[], inStrings=[], inBuffer=bytearray()):
-        res,retInts,retFloats, retStrings,retBuffer =self.vrep.simxCallScriptFunction(self.clientID, self.scriptDescription, vrepConst.sim_scripttype_childscript, functionName, inInts, inFloats, inStrings, inBuffer, vrepConst.simx_opmode_blocking)
+        res,retInts,retFloats, retStrings,retBuffer=self.vrep.simxCallScriptFunction(self.clientID, self.scriptDescription, vrepConst.sim_scripttype_childscript, functionName, inInts, inFloats, inStrings, inBuffer, vrepConst.simx_opmode_blocking)
         if res == vrepConst.simx_return_ok:
             print('Remote function call succeed')
         else:

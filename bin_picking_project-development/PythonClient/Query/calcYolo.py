@@ -1,16 +1,15 @@
-_BIN_HEIGHT = 0.43
 import numpy as np
 import math
 import Query.quaternions as quat
 
 
-def rotBoundBox(q, object, size, absHeight, absWidth):
+def rotBoundBox(q, object, size, absHeight, absWidth, binPosHeight, binHeight):
     x_height = size[0]
     y_depth = size[1]
     z_width = size[2]
     #maxDiagonal= math.sqrt((math.pow(x_height,2))+(math.pow(y_depth,2))+(math.pow(z_width,2)))
     #maxDiagonalOnYolo = maxDiagonal*1.82115/1.458/2.1028367
-    maxDiagonalOnYolo = MaxDiagonalYolo(x_height, y_depth, z_width, absHeight, absWidth)
+    maxDiagonalOnYolo = MaxDiagonalYolo(x_height, y_depth, z_width, absHeight, absWidth, binPosHeight, binHeight)
     boundBox1=np.array([-x_height/2, -y_depth/2, -z_width/2])
     boundBox2=np.array([-x_height/2, -y_depth/2, z_width/2])
     boundBox3=np.array([-x_height/2, y_depth/2, -z_width/2])
@@ -49,12 +48,13 @@ def rotBoundBox(q, object, size, absHeight, absWidth):
     return boundBoxHeight, boundBoxWidth
 
 
-def MaxDiagonalYolo(size_x, size_y, size_z, absHeight, absWidth):
+def MaxDiagonalYolo(size_x, size_y, size_z, absHeight, absWidth, binPosHeight = 0, binHeight = 0):
     x_height = size_x
     y_depth = size_y
     z_width = size_z
+    binHeightThreshold = binPosHeight + 0.075 * binHeight
     maxDiagonal= math.sqrt((math.pow(x_height,2))+(math.pow(y_depth,2))+(math.pow(z_width,2)))
-    limMax = maxDiagonal*absHeight/(absHeight-_BIN_HEIGHT)/absWidth
+    limMax = maxDiagonal*absHeight/(absHeight-binHeightThreshold)/absWidth
     return limMax
 
 
@@ -70,9 +70,17 @@ def GetObjectTopSurface(absOrientation):
         topSurface = 1
     return topSurface
 
-def IsInBin(absPos_z):
-    isInBin = absPos_z > _BIN_HEIGHT #Height of bin is around 0.45
+def IsInBin(absPos_z, binPosHeight, binHeight):
+    binHeightThreshold = binPosHeight + 0.075 * binHeight
+    isInBin = absPos_z > binHeightThreshold #Height of bin is around 0.45
     return isInBin
+
+def IsOnImage(x,y):
+    if x > 0 and x < 1 and y > 0 and y < 1:
+        isOnImage = 1
+    else:
+        isOnImage = 0
+    return isOnImage
 
 def minFunc(a,b):
     if a<b:

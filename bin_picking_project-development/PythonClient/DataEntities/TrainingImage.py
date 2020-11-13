@@ -4,7 +4,7 @@ import collections
 
 class TrainingImage:
 
-    def __init__(self, imageUrl, deptUrl, resolution, trainingId, visionSensor, table):
+    def __init__(self, imageUrl, deptUrl, resolution, trainingId, visionSensor, table, bin):
         self.imageUrl = imageUrl
         self.deptUrl = deptUrl
         self.resolution = resolution
@@ -12,6 +12,7 @@ class TrainingImage:
         self.trainingId = trainingId
         self.visionSensor = visionSensor
         self.table = table
+        self.bin = bin
         
     def addFixture(self, fixture):
         self.fixtures.append(fixture)
@@ -35,6 +36,11 @@ class TrainingImage:
                             {
                                 'absolutePosition': self.table[0],
                                 'size': self.table[1]
+                            },
+                    'bin':
+                            {
+                            'absolutePosition': self.bin[0],
+                            'size': self.bin[1]
                             },
                     'fixtures': self.getFixturesDict()
                 }

@@ -4,8 +4,8 @@ import os.path
 import Query.calcYolo as yolo
 import math
 
-_BIN_HEIGHT = 0.43
 trainFile_name = 'train.txt'
+testFile_name = 'test.txt'
 save_path = os.getcwd() + "\\image_yolo_set"
 
 def Generate():
@@ -34,7 +34,7 @@ def create_objects(results):
     It also defines headers and return it.
     '''
     records = []
-    headers = ['id','imageUrl','absolutePosition1', 'absolutePosition2', 'absolutePosition3', 'absoluteOrientation1','absoluteOrientation2','absoluteOrientation3','absoluteOrientation4','relativePosition1', 'relativePosition2', 'relativePosition3', 'relativeOrientation1','relativeOrientation2','relativeOrientation3','relativeOrientation4', 'size_x', 'size_y', 'size_z', 'visionSensor_z', 'table_z']
+    headers = ['id','imageUrl','absolutePosition1', 'absolutePosition2', 'absolutePosition3', 'absoluteOrientation1','absoluteOrientation2','absoluteOrientation3','absoluteOrientation4','relativePosition1', 'relativePosition2', 'relativePosition3', 'relativeOrientation1','relativeOrientation2','relativeOrientation3','relativeOrientation4', 'size_x', 'size_y', 'size_z', 'visionSensor_z', 'table_z', 'table_size_z', 'bin_z', 'bin_size_z']
     for record in results:
         for position in record['fixtures']:
             tmp = []
@@ -130,6 +130,14 @@ def create_objects(results):
                 tmp.append(str(record['table']['size'][2]))
             except IndexError:
                 tmp.append('NA')
+            try:
+                tmp.append(str(record['bin']['absolutePosition'][2]))
+            except IndexError:
+                tmp.append('NA')
+            try:
+                tmp.append(str(record['bin']['size'][2]))
+            except IndexError:
+                tmp.append('NA')
             records.append(tmp)
     return records, headers
 
@@ -150,6 +158,8 @@ def calculate_and_create_text(records, headers, beg, end):
         visionSensorAngle = float(record[20])
         tablePosHeight = float(record[21])
         tableHeight = float(record[22])
+        binPosHeight = float(record[23])
+        binHeight = float(record[24])
         # print("absOrientation:", absOrientation)
         # print("relPos:", relPos)
         # print("objSize:", objSize)
@@ -167,16 +177,17 @@ def calculate_and_create_text(records, headers, beg, end):
     #Calculate central point and bounding box size
         midX=(relPos[0]*absHeight)/((relPos[2])*(-absWidth)) + 0.5
         midY=((relPos[1] * absHeight) / (relPos[2] * (absWidth))) + 0.5
-        boundingBoxSize =yolo.rotBoundBox (absOrientation, relPos, objSize, absHeight, absWidth)
+        boundingBoxSize =yolo.rotBoundBox (absOrientation, relPos, objSize, absHeight, absWidth, binPosHeight, binHeight)
 
     #Determine whether the object orientation is OE or 3O
         OEClass = yolo.GetObjectTopSurface(absOrientation) # 0: 3O, 1:OE
         #print("OE details: ", OEClass, midX, midY, boundingBoxSize)
-        isInBin = yolo.IsInBin(absPos[2])
+        isInBin = yolo.IsInBin(absPos[2], binPosHeight, binHeight)
+        isOnImage = yolo.IsOnImage(midX, midY)
 
     #Write the object YOLO details into each text file
         if record[1]==tmp2:
-            if isInBin:
+            if isInBin and isOnImage:
                 temp=temp + str(OEClass) + " " + str(midX) +" " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(boundingBoxSize[1]) + str('\n')
         elif file_name != 'NA':
             temp=temp.replace("[","").replace("]","").replace("'","").replace(",","")
@@ -185,13 +196,13 @@ def calculate_and_create_text(records, headers, beg, end):
             f.write(str(temp))
             f.close()
             imageNames = imageNames + "data/obj/" + find_between(record[1], beg, end) + ".jpg\n"
-            if isInBin:
+            if isInBin and isOnImage:
                 temp = str(OEClass) + " " + str(midX) + " " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(
                     boundingBoxSize[1]) + str('\n')
             else:
                 temp = ""
         else:
-            if isInBin:
+            if isInBin and isOnImage:
                 temp = str(OEClass) + " "+ str(midX) + " " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(
                     boundingBoxSize[1]) + str('\n')
             else:
@@ -207,10 +218,29 @@ def calculate_and_create_text(records, headers, beg, end):
     f.close()
 
     #Create train.txt:
-    completeImageName = os.path.join(save_path, trainFile_name)
-    f = open(completeImageName, 'w', encoding='utf-8')
+    completeImageName_train = os.path.join(save_path, trainFile_name)
+    f = open(completeImageName_train, 'w', encoding='utf-8')
     f.write(str(imageNames))
     f.close()
+
+   # imageNames.readlines()
+    # # Slicing first 15% of elements from the list
+    # # to write into the test.txt file
+    # print(imageNames)
+    # imageNames_train = imageNames[:int(len(imageNames) * 0.15)]
+    # # Deleting from initial list first 15% of elements
+    # imagesNames_test = imageNames[int(len(imageNames) * 0.15):]
+    #
+    # completeImageName_train = os.path.join(save_path, trainFile_name)
+    # f = open(completeImageName_train, 'w', encoding='utf-8')
+    # f.write(str(imageNames_train))
+    # f.close()
+    #
+    # completeImageName_test = os.path.join(save_path, testFile_name)
+    # f = open(completeImageName_test, 'w', encoding='utf-8')
+    # f.write(str(imagesNames_test))
+    # f.close()
+
     print("generateYoloData: Training data for YOLO was generated")
 
 def find_between( s, first, last ):

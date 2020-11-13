@@ -19,19 +19,21 @@ class VrepObject:
     def GetObject(self, name):
         handleErr, handle = self.vrepConn.vrep.simxGetObjectHandle(self.clientID, name, self.opMode)
         if handleErr != self.returnOK:
-            print("ERROR: VrepObject: GetObject")
+            print("ERROR: VrepObject: GetObject of ", name)
         return handle
 
     def GetObjectPosition(self):
         handleErr, handle = self.vrepConn.vrep.simxGetObjectHandle(self.clientID, self.name, self.opMode)
         if handleErr != self.returnOK:
-            print("ERROR: VrepObject: GetObject")
+            print("ERROR: VrepObject: GetObject of", self.name)
+            return [0,0,0]
         posReturnCode, position = self.vrepConn.vrep.simxGetObjectPosition(self.clientID, handle, -1, self.opMode)
         if posReturnCode == self.returnOK:
             self.position = position
             return position
         else:
-            return -1, "ERROR: Get position failed"
+            print("ERROR: VrepObject: GetObjectPosition of", self.name)
+            return [0,0,0]
         return handle
 
 
@@ -44,7 +46,13 @@ class VrepObject:
             return -1, "ERROR: Get position failed"
 
 
+
+
     def GetObjectSize(self, clientID, opMode):
+        handleErr, handle = self.vrepConn.vrep.simxGetObjectHandle(self.clientID, self.name, self.opMode)
+        if handleErr != self.returnOK:
+            print("ERROR: VrepObject: GetObjectSize of", self.name)
+            return [0, 0, 0]
         if self.handler > -1:
             handle = self.handler
             minxReturnCode, minx = self.vrepConn.vrep.simxGetObjectFloatParameter(clientID, handle, 15, opMode)  # get minx
@@ -61,7 +69,8 @@ class VrepObject:
         if sizeReturnCode == self.returnOK:
             return size
         else:
-            return -1, "ERROR: Get object size failed"
+            print("ERROR: VrepObject: GetObjectSize of", self.name)
+            return -1,
 
     def GetVisionSensorAngle(self, clientID, opMode):
         if self.handler > -1:
@@ -108,7 +117,16 @@ class VrepObject:
                         return -1, "ERROR: Get position and orientation failed"
                 else:
                     return -1, "ERROR: Get reference handler failed"
-    
+
+    def SetObjectRotation(self, referenceName = None):
+        handleErr, handle = self.vrepConn.vrep.simxGetObjectHandle(self.clientID, self.name, self.opMode)
+        if handleErr != self.returnOK:
+            print("ERROR: SetObjectRotation")
+        rotMx = hp.RotateRandomObject(True)
+        posReturnCode = self.vrepConn.vrep.simxSetObjectMatrix(self.clientID, handle, handle, rotMx, self.opMode)
+        if posReturnCode != self.returnOK:
+            return -1, "ERROR: Get position failed"
+
     def SetColor(self, colorFloats):
         if self.handler > -1:
             self.vrepConn.callScript('setColor', inStrings=[self.name], inFloats=colorFloats)

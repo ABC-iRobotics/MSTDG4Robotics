@@ -64,22 +64,22 @@ class VrepSceneManipulator:
         handleErr, visionSensorHandle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, visionSensorName, self.vrepConn.vrepConst.simx_opmode_blocking)
         if handleErr == self.vrepConn.vrepConst.simx_return_ok:
             err, resolution, image = self.vrepConn.vrep.simxGetVisionSensorImage(self.vrepConn.clientID, visionSensorHandle, 0, self.vrepConn.vrepConst.simx_opmode_streaming)
-            time.sleep(.05)
+            #time.sleep(.05)
 
             while (self.vrepConn.vrep.simxGetConnectionId(self.vrepConn.clientID) != -1):
-                err, resolution, image = self.vrepConn.vrep.simxGetVisionSensorImage(self.vrepConn.clientID, visionSensorHandle, 0, self.vrepConn.vrepConst.simx_opmode_buffer)       
+                err, resolution, image = self.vrepConn.vrep.simxGetVisionSensorImage(self.vrepConn.clientID, visionSensorHandle, 0, self.vrepConn.vrepConst.simx_opmode_buffer)
                 if err == self.vrepConn.vrepConst.simx_return_ok:
                     print('Successfully get an image from vision sensor.')
                     break
             image_byte_array = array.array('b',image).tobytes()
-            im = Image.frombuffer("RGB", (resolution[0],resolution[1]), image_byte_array, "raw", "RGB", 0, 1)        
-            
+            im = Image.frombuffer("RGB", (resolution[0],resolution[1]), image_byte_array, "raw", "RGB", 0, 1)
+
             #im.show() #just for testing
 
             depthReturnCode, depthResolution, depthBuffer = self.vrepConn.vrep.simxGetVisionSensorDepthBuffer(self.vrepConn.clientID, visionSensorHandle, self.vrepConn.vrepConst.simx_opmode_streaming)
-            time.sleep(.05)
+            #time.sleep(.05)
             while (self.vrepConn.vrep.simxGetConnectionId(self.vrepConn.clientID) != -1):
-                depthReturnCode, depthResolution, depthBuffer = self.vrepConn.vrep.simxGetVisionSensorDepthBuffer(self.vrepConn.clientID, visionSensorHandle, self.vrepConn.vrepConst.simx_opmode_buffer)       
+                depthReturnCode, depthResolution, depthBuffer = self.vrepConn.vrep.simxGetVisionSensorDepthBuffer(self.vrepConn.clientID, visionSensorHandle, self.vrepConn.vrepConst.simx_opmode_buffer)
                 if depthReturnCode == self.vrepConn.vrepConst.simx_return_ok:
                     print('Successfully get depth data from vision sensor.')
                     break
@@ -94,7 +94,7 @@ class VrepSceneManipulator:
             with open(depthPath, 'w') as f:
                 for item in depthBuffer:
                     f.write("%f\n" % item)
-            
+
             if err == self.vrepConn.vrepConst.simx_return_ok:
                 #imageAcquisitionTime=self.vrepConn.vrep.simxGetLastCmdTime(self.vrepConn.clientID)
                 print('VrepSceneManipulator: GetImage: Image saved successfully: ' + imgPath)
@@ -105,3 +105,55 @@ class VrepSceneManipulator:
             print('VrepSceneManipulator: GetImage: Cannot get handler object')
         return 0
 
+    def GetImageWoDepth(self, visionSensorName):
+        # time.sleep(.05) #approx falling time in rt settings #DGU:commented out, this waiting was moved in BinPicking/Step before pause - 20200920
+        handleErr, visionSensorHandle = self.vrepConn.vrep.simxGetObjectHandle(self.vrepConn.clientID, visionSensorName,
+                                                                               self.vrepConn.vrepConst.simx_opmode_blocking)
+        if handleErr == self.vrepConn.vrepConst.simx_return_ok:
+            err, resolution, image = self.vrepConn.vrep.simxGetVisionSensorImage(self.vrepConn.clientID,
+                                                                                 visionSensorHandle, 0,
+                                                                                 self.vrepConn.vrepConst.simx_opmode_streaming)
+            # time.sleep(.05)
+
+            while (self.vrepConn.vrep.simxGetConnectionId(self.vrepConn.clientID) != -1):
+                err, resolution, image = self.vrepConn.vrep.simxGetVisionSensorImage(self.vrepConn.clientID,
+                                                                                     visionSensorHandle, 0,
+                                                                                     self.vrepConn.vrepConst.simx_opmode_buffer)
+                if err == self.vrepConn.vrepConst.simx_return_ok:
+                    print('Successfully get an image from vision sensor.')
+                    break
+            image_byte_array = array.array('b', image).tobytes()
+            im = Image.frombuffer("RGB", (resolution[0], resolution[1]), image_byte_array, "raw", "RGB", 0, 1)
+
+            # im.show() #just for testing
+
+            # depthReturnCode, depthResolution, depthBuffer = self.vrepConn.vrep.simxGetVisionSensorDepthBuffer(
+            #     self.vrepConn.clientID, visionSensorHandle, self.vrepConn.vrepConst.simx_opmode_streaming)
+            # time.sleep(.05)
+            # while (self.vrepConn.vrep.simxGetConnectionId(self.vrepConn.clientID) != -1):
+            #     depthReturnCode, depthResolution, depthBuffer = self.vrepConn.vrep.simxGetVisionSensorDepthBuffer(
+            #         self.vrepConn.clientID, visionSensorHandle, self.vrepConn.vrepConst.simx_opmode_buffer)
+            #     if depthReturnCode == self.vrepConn.vrepConst.simx_return_ok:
+            #         print('Successfully get depth data from vision sensor.')
+            #         break
+
+            currentDT = datetime.datetime.now()
+            globalPath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'image_set'))
+            imgPath = os.path.join(globalPath, (currentDT.strftime("%Y_%m_%d_%H_%M_%S") + '.jpg'))
+            im.save(imgPath)
+
+            globalPath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'depth_set'))
+            depthPath = os.path.join(globalPath, (currentDT.strftime("%Y_%m_%d_%H_%M_%S") + '.dat'))
+            # with open(depthPath, 'w') as f:
+            #     for item in depthBuffer:
+            #         f.write("%f\n" % item)
+
+            if err == self.vrepConn.vrepConst.simx_return_ok:
+                # imageAcquisitionTime=self.vrepConn.vrep.simxGetLastCmdTime(self.vrepConn.clientID)
+                print('VrepSceneManipulator: GetImage: Image saved successfully: ' + imgPath)
+                return imgPath, depthPath, resolution
+            else:
+                print('VrepSceneManipulator: GetImage: Error while get the image sensor image')
+        else:
+            print('VrepSceneManipulator: GetImage: Cannot get handler object')
+        return 0
