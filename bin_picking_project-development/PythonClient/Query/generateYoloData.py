@@ -7,8 +7,13 @@ import math
 trainFile_name = 'train.txt'
 testFile_name = 'test.txt'
 objNameFile_name = "obj.names"
+objDataFile_name = "obj.data"
+
 OBJ_NAMES = ["3O", "OE"]
 save_path = os.getcwd() + "\\image_yolo_set"
+save_path_obj = save_path + "\\obj"
+
+TEST_RATIO = 0.15
 
 def Generate():
     myclient = MongoClient("mongodb://localhost:27017/")
@@ -149,7 +154,8 @@ def calculate_and_create_text(records, headers, beg, end):
     temp=""
     tmp2=''
     file_name='NA'
-    imageNames = ""
+    #imageNames = ""
+    imageNames = []
     for record in records:
         absPos = [float(record[2]), float(record[3]), float(record[4])]
         absOrientation = [float(record[5]), float(record[6]), float(record[7]), float(record[8])]
@@ -193,11 +199,12 @@ def calculate_and_create_text(records, headers, beg, end):
                 temp=temp + str(OEClass) + " " + str(midX) +" " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(boundingBoxSize[1]) + str('\n')
         elif file_name != 'NA':
             temp=temp.replace("[","").replace("]","").replace("'","").replace(",","")
-            completeName = os.path.join(save_path, file_name)
+            completeName = os.path.join(save_path_obj, file_name)
             f = open(completeName, 'w', encoding='utf-8')
             f.write(str(temp))
             f.close()
-            imageNames = imageNames + "data/obj/" + find_between(record[1], beg, end) + ".jpg\n"
+            #imageNames = imageNames + "data/obj/" + find_between(record[1], beg, end) + ".jpg\n"
+            imageNames.append("data/obj/" + find_between(record[1], beg, end) + ".jpg\n")
             if isInBin and isOnImage:
                 temp = str(OEClass) + " " + str(midX) + " " + str(midY) + " " + str(boundingBoxSize[0]) + " " + str(
                     boundingBoxSize[1]) + str('\n')
@@ -209,50 +216,107 @@ def calculate_and_create_text(records, headers, beg, end):
                     boundingBoxSize[1]) + str('\n')
             else:
                 temp = ""
-            imageNames = imageNames + "data/obj/" +  find_between(record[1], beg, end) + ".jpg\n"
-
+            #imageNames = imageNames + "data/obj/" +  find_between(record[1], beg, end) + ".jpg\n"
+            imageNames.append("data/obj/" + find_between(record[1], beg, end) + ".jpg\n")
         tmp2=record[1]
         file_name = find_between(record[1], beg, end) + ".txt"
+    print("generateYoloData: Bounding boxes were successfully calculated.")
     temp=temp.replace("[","").replace("]","").replace("'","").replace(",","")
-    completeName = os.path.join(save_path, file_name)
-    f = open(completeName, 'w', encoding='utf-8')
-    f.write(str(temp))
-    f.close()
-
+    completeName = os.path.join(save_path_obj, file_name)
+    try:
+        f = open(completeName, 'w', encoding='utf-8')
+        f.write(str(temp))
+        f.close()
+        print("generateYoloData: YOLO annotation text files were generated successfully")
+    except:
+        print("ERROR: generateYoloData: YOLO annotation text files generation was failed")
+    #print("Imagenames: ", imageNames)
+    #print("Imagenames length: ", len(imageNames))
     #Create train.txt:
-    completeImageName_train = os.path.join(save_path, trainFile_name)
-    f = open(completeImageName_train, 'w', encoding='utf-8')
-    f.write(str(imageNames))
-    f.close()
-
-   # imageNames.readlines()
-    # # Slicing first 15% of elements from the list
-    # # to write into the test.txt file
-    # print(imageNames)
-    # imageNames_train = imageNames[:int(len(imageNames) * 0.15)]
-    # # Deleting from initial list first 15% of elements
-    # imagesNames_test = imageNames[int(len(imageNames) * 0.15):]
-    #
     # completeImageName_train = os.path.join(save_path, trainFile_name)
     # f = open(completeImageName_train, 'w', encoding='utf-8')
-    # f.write(str(imageNames_train))
-    # f.close()
-    #
-    # completeImageName_test = os.path.join(save_path, testFile_name)
-    # f = open(completeImageName_test, 'w', encoding='utf-8')
-    # f.write(str(imagesNames_test))
+    # f.write(str(imageNames))
     # f.close()
 
+   # imageNames.readlines()
+    # Slicing first 15% of elements from the list
+    # to write into the test.txt file
+    imageNames_test = imageNames[:int(len(imageNames) * TEST_RATIO)]
+    # Deleting from initial list first 15% of elements
+    imageNames_train = imageNames[int(len(imageNames) * TEST_RATIO):]
+
+    completeImageName_train = os.path.join(save_path, trainFile_name)
+    # f = open(completeImageName_train, 'w', encoding='utf-8')
+    # f.write(imageNames_train)
+    # f.close()
+    #
+    completeImageName_test = os.path.join(save_path, testFile_name)
+    # f = open(completeImageName_test, 'w', encoding='utf-8')
+    # f.write(imageNames_test)
+    # f.close()
+
+    # Creating file train.txt and writing 85% of lines in it
+    try:
+        with open(completeImageName_train, 'w') as train_txt:
+            # Going through all elements of the list
+            for e in imageNames_train:
+                # Writing current path at the end of the file
+                train_txt.write(e)
+        print("generateYoloData: train file was generated successfully")
+    except:
+        print("ERROR: generateYoloData: Generation of train file was failed")
+
+    # Creating file test.txt and writing 15% of lines in it
+    try:
+        with open(completeImageName_test, 'w') as test_txt:
+            # Going through all elements of the list
+            for e in imageNames_test:
+                # Writing current path at the end of the file
+                test_txt.write(e)
+        print("generateYoloData: test file was generated successfully")
+    except:
+        print("ERROR: generateYoloData: Generation of test file was failed")
     #Create obj.names:
     path_objnames = os.path.join(save_path, objNameFile_name)
     f = open(path_objnames, 'w', encoding='utf-8')
     #f.writelines(["3O", "OE"])
-    for obj_name in OBJ_NAMES:
-         f.write(obj_name)
-         f.write("\n")
-    f.close()
+    try:
+        for obj_name in OBJ_NAMES:
+             f.write(obj_name)
+             f.write("\n")
+        f.close()
+        print("generateYoloData: obj.names file was generated successfully")
+    except:
+        print("ERROR: generateYoloData: Generation of obj.names file was failed")
+
+    #Create obj.data:
+    try:
+        create_objdatafile(OBJ_NAMES)
+    except:
+        print("ERROR: generateYoloData: Generation of obj.data file was failed")
 
     print("generateYoloData: Training data for YOLO was generated")
+
+
+def create_objdatafile(classes):
+    with open(save_path + '/' + objDataFile_name, 'w') as data:
+        # Writing needed 5 lines
+        # Number of classes
+        # By using '\n' we move to the next line
+        data.write('classes = ' + str(len(classes)) + '\n')
+
+        # Location of the train.txt file
+        data.write('train = data/' + trainFile_name + '\n')
+
+        # Location of the test.txt file
+        data.write('valid = data/' + testFile_name + '\n')
+
+        # Location of the classes.names file
+        data.write('names =  data/' + objNameFile_name + '\n')
+
+        # Location where to save weights
+        data.write('backup = backup')
+        print("generateYoloData: obj.data file was generated successfully")
 
 def find_between( s, first, last ):
     try:

@@ -60,7 +60,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
-      <option name="PARAMETERS" value="BinPicking 1 1 OE_logo_3D.stl 5 Table Vision_sensor Bin False 1.65 0.004 0.007" />
+      <option name="PARAMETERS" value="BinPicking 0 1 OE_logo_3D.stl 5 Table Vision_sensor Bin False 1.65 0.004 0.007" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
