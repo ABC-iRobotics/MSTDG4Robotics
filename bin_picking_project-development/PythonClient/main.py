@@ -42,7 +42,8 @@ def main():
     
     vrepConn = vcon.VrepConnector()
 
-    if vrepConn.connectionWasSuccesfull:    
+    if vrepConn.connectionWasSuccesfull:
+        vrepConn.stop()
         vrepConn.start()
         vrepConn.SetSimulationSpeed(simSpeed) #value can set from -3 (0.1x speed) to +6 (64x speed)
 

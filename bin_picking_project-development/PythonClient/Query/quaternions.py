@@ -613,12 +613,6 @@ def quat2axangle(quat, identity_thresh=None):
     return  np.array([x, y, z]) / math.sqrt(len2), theta
 
 
-2
-
-
-def eulerAnglesToRotationMatrix(theta):
-    3
-
 
 def eulerAnglesToRotationMatrix(theta):
     R_x = np.array([[1, 0, 0],
